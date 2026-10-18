@@ -1,0 +1,503 @@
+/* DURRAT - LIVE SUPABASE CATALOGUE */
+
+.dh-live-page {
+  background: #f8f7f3;
+  min-height: 100vh;
+  color: #20362a;
+}
+
+.dh-live-nav {
+  background: white;
+  border-bottom: 1px solid #e8e8e2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 19px max(24px, calc((100% - 1330px) / 2));
+}
+
+.dh-live-brand {
+  color: #1c3326;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.dh-live-brand span {
+  color: #b49768;
+}
+
+.dh-live-nav > a:last-child {
+  font-size: 13px;
+  color: #718175;
+}
+
+.dh-live-container {
+  max-width: 1330px;
+  padding: 35px 22px 80px;
+  margin: 0 auto;
+}
+
+.dh-live-heading {
+  margin: 15px 0 37px;
+}
+
+.dh-live-heading > span {
+  color: #b69b70;
+  font: 700 11px Arial, sans-serif;
+  letter-spacing: .13em;
+}
+
+.dh-live-heading h1 {
+  font-size: clamp(29px, 4vw, 46px);
+  margin: 12px 0;
+  color: #1a3023;
+  font-weight: 900;
+}
+
+.dh-live-heading p {
+  font-size: 14px;
+  color: #829084;
+}
+
+.dh-live-layout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  align-items: start;
+  gap: 25px;
+}
+
+.dh-live-sidebar {
+  background: #fff;
+  border: 1px solid #e7e8e1;
+  padding: 23px;
+  border-radius: 15px;
+}
+
+.dh-live-sidebar h2 {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 22px;
+}
+
+.dh-live-sidebar label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 750;
+  color: #647465;
+  margin-bottom: 18px;
+}
+
+.dh-live-sidebar select,
+.dh-live-sidebar input {
+  width: 100%;
+  height: 44px;
+  border: 1px solid #e3e6df;
+  border-radius: 8px;
+  padding: 0 11px;
+  background: #fff;
+  color: #1d3325;
+  outline: none;
+}
+
+.dh-live-reset {
+  background: #20382a;
+  color: white;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 8px;
+  width: 100%;
+  cursor: pointer;
+  font-weight: 750;
+}
+
+.dh-live-main {
+  min-width: 0;
+}
+
+.dh-live-panel-heading {
+  background: #fff;
+  border: 1px solid #e9e8e2;
+  border-bottom: none;
+  padding: 21px;
+  border-radius: 13px 13px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.dh-live-panel-heading h2 {
+  font-size: 19px;
+  font-weight: 850;
+  margin: 0;
+}
+
+.dh-live-panel-heading span {
+  font-size: 12px;
+  color: #a28a61;
+}
+
+.dh-live-map-wrapper {
+  height: 520px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #e9e8e2;
+  border-top: 0;
+  border-radius: 0 0 13px 13px;
+}
+
+.dh-live-map {
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+.dh-live-map .leaflet-tile-pane {
+  filter: saturate(.65) contrast(.97) brightness(1.04);
+}
+
+.dh-live-pin {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+.dh-live-pin-content {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: white;
+  border: 1px solid #e5e5de;
+  border-radius: 40px;
+  padding: 10px 13px;
+  box-shadow: 0 4px 14px #0002;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.dh-live-pin-content strong {
+  color: #20372a;
+  font-size: 13px;
+}
+
+.dh-live-pin-content span {
+  background: #f1ece2;
+  color: #9b8054;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dh-live-pin.selected .dh-live-pin-content {
+  background: #20372a;
+  border-color: #20372a;
+}
+
+.dh-live-pin.selected strong {
+  color: white;
+}
+
+.dh-live-map-card {
+  position: absolute;
+  z-index: 700;
+  bottom: 17px;
+  inset-inline-start: 17px;
+  background: white;
+  width: 330px;
+  max-width: calc(100% - 34px);
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 10px 35px #0003;
+}
+
+.dh-live-map-card-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 13px 15px;
+}
+
+.dh-live-map-card-header button {
+  border: 0;
+  background: #f2f2ed;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  cursor: pointer;
+}
+
+.dh-live-map-image,
+.dh-live-map-no-image {
+  width: 100%;
+  height: 155px;
+  object-fit: cover;
+  background: #e8e7e0;
+}
+
+.dh-live-map-no-image {
+  display: grid;
+  place-items: center;
+  color: #a4a49c;
+}
+
+.dh-live-map-card-body {
+  padding: 15px;
+}
+
+.dh-live-map-card-body h3 {
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.dh-live-price {
+  display: block;
+  color: #b38f5c;
+  font-size: 21px;
+  font-weight: 850;
+  margin: 10px 0;
+}
+
+.dh-live-map-card-body p {
+  color: #8b988c;
+  font-size: 11px;
+}
+
+.dh-live-carousel-controls {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding-top: 13px;
+  border-top: 1px solid #eee;
+  margin-top: 15px;
+}
+
+.dh-live-carousel-controls button {
+  height: 29px;
+  width: 29px;
+  background: #f4f4f0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.dh-live-carousel-controls button:disabled {
+  opacity: .4;
+}
+
+.dh-live-carousel-controls span {
+  font-size: 11px;
+}
+
+.dh-live-carousel-controls a {
+  margin-inline-start: auto;
+  color: #a3875c;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.dh-live-list-heading {
+  border: 0;
+  background: transparent;
+  margin-top: 23px;
+  padding: 19px 0;
+}
+
+.dh-live-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.dh-live-card {
+  display: block;
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid #e7e9e3;
+  border-radius: 13px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.dh-live-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 25px #0001;
+}
+
+.dh-live-card > img,
+.dh-live-placeholder {
+  display: block;
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  background: #e5e7e0;
+}
+
+.dh-live-placeholder {
+  display: grid;
+  place-items: center;
+  color: #9ba699;
+}
+
+.dh-live-card-body {
+  padding: 19px;
+}
+
+.dh-live-card-district {
+  font-size: 11px;
+  color: #a58c65;
+}
+
+.dh-live-card h3 {
+  font-size: 17px;
+  margin: 8px 0 12px;
+  font-weight: 850;
+}
+
+.dh-live-card-body p {
+  color: #859185;
+  font-size: 12px;
+}
+
+.dh-live-details-link {
+  display: block;
+  color: #a58a5e;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 14px;
+}
+
+.dh-live-feedback {
+  background: white;
+  border: 1px solid #e8e9e2;
+  border-radius: 12px;
+  padding: 50px 20px;
+  text-align: center;
+  color: #839183;
+}
+
+.dh-live-feedback.error {
+  color: #a74040;
+}
+
+/* DETAILS */
+
+.dh-live-detail-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 330px;
+  align-items: start;
+  gap: 25px;
+}
+
+.dh-live-detail-main,
+.dh-live-detail-aside {
+  background: white;
+  border: 1px solid #e7e9e3;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.dh-live-detail-photo img,
+.dh-live-detail-photo .dh-live-placeholder {
+  width: 100%;
+  height: 430px;
+  object-fit: cover;
+}
+
+.dh-live-thumbnails {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 14px;
+}
+
+.dh-live-thumbnails button {
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 7px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.dh-live-thumbnails button.active {
+  border-color: #ba9864;
+}
+
+.dh-live-thumbnails img {
+  width: 90px;
+  height: 65px;
+  object-fit: cover;
+}
+
+.dh-live-description {
+  padding: 25px;
+}
+
+.dh-live-description h2 {
+  font-size: 22px;
+  font-weight: 850;
+  margin-bottom: 15px;
+}
+
+.dh-live-description p {
+  white-space: pre-wrap;
+  line-height: 1.9;
+  color: #69796c;
+}
+
+.dh-live-detail-aside {
+  padding: 25px;
+}
+
+.dh-live-detail-aside > span {
+  color: #9eaa9e;
+  font-size: 11px;
+}
+
+.dh-live-specs {
+  padding: 12px 0;
+  color: #78887c;
+  font-size: 13px;
+}
+
+.dh-live-contact-link {
+  display: block;
+  background: #1e3829;
+  color: white;
+  text-align: center;
+  border-radius: 9px;
+  padding: 15px;
+  margin-top: 12px;
+}
+
+@media(max-width:1050px) {
+  .dh-live-layout,
+  .dh-live-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .dh-live-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media(max-width:600px) {
+  .dh-live-container {
+    padding: 22px 14px 60px;
+  }
+
+  .dh-live-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dh-live-map-wrapper {
+    height: 560px;
+  }
+
+  .dh-live-detail-photo img {
+    height: 270px;
+  }
+}

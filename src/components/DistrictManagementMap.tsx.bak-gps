@@ -1,0 +1,320 @@
+'use client';
+
+import {useEffect, useRef, useState} from 'react';
+import type {Map as LeafletMap, LayerGroup} from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+type District = {
+  id:string;
+  names:Record<string,string>;
+  latitude?:number|null;
+  longitude?:number|null;
+};
+
+type Position = {
+  latitude:number|null;
+  longitude:number|null;
+};
+
+type Props = {
+  districts:District[];
+  editingId:string|null;
+  position:Position;
+  onPick:(position:Position)=>void;
+  onEdit:(district:District)=>void;
+};
+
+const SAUDI_BOUNDS:[[number,number],[number,number]] = [
+  [16.2,34.5],
+  [32.5,55.8]
+];
+
+// Positions approximatives des anciens quartiers de demonstration.
+const demoLocations:Record<string,[number,number]> = {
+  arid:[24.495,39.658],
+  qurban:[24.443,39.613],
+  awali:[24.412,39.653]
+};
+
+const cities:Record<string,[number,number]> = {
+  'المدينة المنورة':[24.4672,39.6111],
+  'مكة المكرمة':[21.4225,39.8262],
+  'الرياض':[24.7136,46.6753],
+  'جدة':[21.5433,39.1728],
+  'الدمام':[26.4207,50.0888]
+};
+
+function valid(lat:number|null|undefined,lng:number|null|undefined) {
+  return (
+    typeof lat==='number' &&
+    typeof lng==='number' &&
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    Math.abs(lat)<=90 &&
+    Math.abs(lng)<=180
+  );
+}
+
+export function DistrictManagementMap({
+  districts,editingId,position,onPick,onEdit
+}:Props) {
+
+  const element=useRef<HTMLDivElement>(null);
+  const map=useRef<LeafletMap|null>(null);
+  const layer=useRef<LayerGroup|null>(null);
+  const leaflet=useRef<typeof import('leaflet')|null>(null);
+
+  const handlers=useRef({onPick,onEdit});
+  handlers.current={onPick,onEdit};
+
+  const [ready,setReady]=useState(false);
+
+  useEffect(()=>{
+    let cancelled=false;
+
+    async function initialize() {
+      const L=await import('leaflet');
+
+      if(cancelled||!element.current)return;
+
+      const instance=L.map(element.current,{
+        zoomControl:true,
+        scrollWheelZoom:false
+      });
+
+      instance.fitBounds(SAUDI_BOUNDS,{
+        padding:[20,20]
+      });
+
+      L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          attribution:'&copy; OpenStreetMap contributors',
+          maxZoom:19
+        }
+      ).addTo(instance);
+
+      leaflet.current=L;
+      map.current=instance;
+      layer.current=L.layerGroup().addTo(instance);
+
+      instance.on('click',event=>{
+        handlers.current.onPick({
+          latitude:Number(event.latlng.lat.toFixed(6)),
+          longitude:Number(event.latlng.lng.toFixed(6))
+        });
+      });
+
+      setReady(true);
+
+      setTimeout(()=>{
+        if(!cancelled)instance.invalidateSize();
+      },200);
+    }
+
+    initialize().catch(console.error);
+
+    return ()=>{
+      cancelled=true;
+      map.current?.remove();
+      map.current=null;
+      layer.current=null;
+      leaflet.current=null;
+    };
+  },[]);
+
+  // Afficher les quartiers enregistres et le marqueur en cours.
+  useEffect(()=>{
+    if(!ready)return;
+
+    const L=leaflet.current;
+    const currentMap=map.current;
+    const currentLayer=layer.current;
+
+    if(!L||!currentMap||!currentLayer)return;
+
+    currentLayer.clearLayers();
+
+    districts.forEach(district=>{
+      const hasPosition=valid(
+        district.latitude,
+        district.longitude
+      );
+
+      const coords:[number,number]|undefined=hasPosition
+        ? [district.latitude!,district.longitude!]
+        : demoLocations[district.id];
+
+      if(!coords)return;
+
+      // Ne pas superposer deux marqueurs sur le quartier modifie.
+      if(
+        district.id===editingId &&
+        valid(position.latitude,position.longitude)
+      ) return;
+
+      const pill=document.createElement('div');
+      pill.className='av-dmap-pill';
+
+      const name=document.createElement('strong');
+      name.textContent=district.names.ar||'حي';
+
+      pill.appendChild(name);
+
+      if(!hasPosition) {
+        const badge=document.createElement('small');
+        badge.textContent='تقريبي';
+        pill.appendChild(badge);
+      }
+
+      const icon=L.divIcon({
+        className:'av-dmap-icon',
+        html:pill,
+        iconSize:[140,44],
+        iconAnchor:[70,44]
+      });
+
+      const marker=L.marker(coords,{
+        icon,
+        riseOnHover:true
+      });
+
+      marker.on('click',()=>{
+        handlers.current.onEdit(district);
+        currentMap.flyTo(coords,14);
+      });
+
+      marker.addTo(currentLayer);
+    });
+
+    // Marqueur du quartier en cours de creation / modification
+    if(valid(position.latitude,position.longitude)) {
+
+      const coordinates:[number,number]=[
+        position.latitude!,
+        position.longitude!
+      ];
+
+      const pin=L.divIcon({
+        className:'av-dmap-selected-icon',
+        html:'<div class="av-dmap-selected-pin"><span></span></div>',
+        iconSize:[42,52],
+        iconAnchor:[21,48]
+      });
+
+      const marker=L.marker(coordinates,{
+        icon:pin,
+        draggable:true,
+        zIndexOffset:1000
+      });
+
+      marker.on('dragend',()=>{
+        const point=marker.getLatLng();
+
+        handlers.current.onPick({
+          latitude:Number(point.lat.toFixed(6)),
+          longitude:Number(point.lng.toFixed(6))
+        });
+      });
+
+      marker.addTo(currentLayer);
+    }
+
+  },[ready,districts,editingId,position.latitude,position.longitude]);
+
+  function showKingdom() {
+    map.current?.fitBounds(SAUDI_BOUNDS,{
+      padding:[20,20]
+    });
+  }
+
+  function showCity(city:string) {
+    const coords=cities[city];
+    if(coords)map.current?.flyTo(coords,12);
+  }
+
+  return (
+    <div className="av-dmap">
+
+      <div className="av-dmap-toolbar">
+        <div>
+          <strong>تحديد مواقع الأحياء</strong>
+          <p>اضغط على الخريطة لتحديد مركز الحي</p>
+        </div>
+
+        <div className="av-dmap-controls">
+          <select
+            defaultValue=""
+            aria-label="اختيار المدينة"
+            onChange={e=>{
+              if(e.target.value)showCity(e.target.value);
+            }}
+          >
+            <option value="" disabled>اختر المدينة</option>
+
+            {Object.keys(cities).map(city=>
+              <option key={city} value={city}>
+                {city}
+              </option>
+            )}
+          </select>
+
+          <button type="button" onClick={showKingdom}>
+            عرض المملكة 🇸🇦
+          </button>
+        </div>
+      </div>
+
+      <div className="av-dmap-stage">
+
+        <div
+          ref={element}
+          className="av-dmap-canvas"
+          dir="ltr"
+          aria-label="خريطة تفاعلية لإدارة مواقع الأحياء"
+        />
+
+        <div
+          className="av-dmap-coordinate-overlay"
+          dir="rtl"
+          aria-live="polite"
+        >
+          <div className="av-dmap-coordinate-title">
+            <span className="av-dmap-coordinate-dot" />
+            إحداثيات الموقع
+          </div>
+
+          <div className="av-dmap-coordinate-row">
+            <span>خط العرض</span>
+            <strong dir="ltr">
+              {position.latitude !== null &&
+               Number.isFinite(position.latitude)
+                ? position.latitude.toFixed(6)
+                : '—'}
+            </strong>
+          </div>
+
+          <div className="av-dmap-coordinate-row">
+            <span>خط الطول</span>
+            <strong dir="ltr">
+              {position.longitude !== null &&
+               Number.isFinite(position.longitude)
+                ? position.longitude.toFixed(6)
+                : '—'}
+            </strong>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div className="av-dmap-bottom">
+        <span>● اضغط لتحديد موقع الحي أو اسحب العلامة</span>
+        <span>
+          المواقع التجريبية تقريبية وتحتاج إلى تأكيد
+        </span>
+      </div>
+
+    </div>
+  );
+}

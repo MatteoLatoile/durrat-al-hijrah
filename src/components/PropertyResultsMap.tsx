@@ -1,0 +1,463 @@
+'use client';
+
+import {useEffect, useMemo, useRef, useState} from 'react';
+import Link from 'next/link';
+import {ChevronLeft, ChevronRight, X, MapPin, BedDouble, Maximize2, ArrowUpLeft} from 'lucide-react';
+import type {Map as LeafletMap, LayerGroup} from 'leaflet';
+
+import 'leaflet/dist/leaflet.css';
+import './property-zone-map.css';
+
+type PropertyPin = {
+  id: number;
+  title: string;
+  price: number;
+  district: string;
+  districtLabel: string;
+  imageUrl?: string;
+  area?: number;
+  beds?: number;
+};
+
+type Props = {
+  properties: PropertyPin[];
+  locale: string;
+};
+
+// Centres indicatifs pour les quartiers de demonstration.
+// A remplacer par des coordonnees de quartier verifiees.
+const districtCenters: Record<string, [number, number]> = {
+  arid: [24.495, 39.658],
+  qurban: [24.443, 39.613],
+  awali: [24.412, 39.653]
+};
+
+const SAUDI_BOUNDS: [[number, number], [number, number]] = [
+  [16.2, 34.5],
+  [32.5, 55.8]
+];
+
+const translations: Record<string, {
+  title: string;
+  listings: string;
+  view: string;
+  close: string;
+  previous: string;
+  next: string;
+  area: string;
+  rooms: string;
+  notice: string;
+  noPhoto: string;
+}> = {
+  ar: {
+    title: 'استكشف العقارات حسب الحي',
+    listings: 'عقارات',
+    view: 'عرض تفاصيل العقار',
+    close: 'إغلاق',
+    previous: 'العقار السابق',
+    next: 'العقار التالي',
+    area: 'م²',
+    rooms: 'غرف',
+    notice: 'المواقع تقريبية وتجريبية وليست عناوين حقيقية.',
+    noPhoto: 'لا توجد صورة'
+  },
+  fr: {
+    title: 'Explorer par quartier',
+    listings: 'biens',
+    view: 'Voir cette propriété',
+    close: 'Fermer',
+    previous: 'Bien précédent',
+    next: 'Bien suivant',
+    area: 'm²',
+    rooms: 'chambres',
+    notice: 'Emplacements approximatifs de démonstration.',
+    noPhoto: 'Aucune photo'
+  },
+  en: {
+    title: 'Explore by neighborhood',
+    listings: 'properties',
+    view: 'View property',
+    close: 'Close',
+    previous: 'Previous property',
+    next: 'Next property',
+    area: 'm²',
+    rooms: 'bedrooms',
+    notice: 'Approximate demo locations, not actual addresses.',
+    noPhoto: 'No photo'
+  },
+  ru: {
+    title: 'Поиск по районам',
+    listings: 'объектов',
+    view: 'Подробнее',
+    close: 'Закрыть',
+    previous: 'Предыдущий',
+    next: 'Следующий',
+    area: 'м²',
+    rooms: 'спальни',
+    notice: 'Примерное расположение для демонстрации.',
+    noPhoto: 'Нет фото'
+  },
+  ur: {
+    title: 'علاقے کے لحاظ سے پراپرٹیز',
+    listings: 'جائیدادیں',
+    view: 'تفصیلات دیکھیں',
+    close: 'بند کریں',
+    previous: 'پچھلی جائیداد',
+    next: 'اگلی جائیداد',
+    area: 'مربع میٹر',
+    rooms: 'کمرے',
+    notice: 'مقامات صرف نمونے کے لیے ہیں۔',
+    noPhoto: 'تصویر نہیں'
+  },
+  id: {
+    title: 'Jelajahi berdasarkan kawasan',
+    listings: 'properti',
+    view: 'Lihat properti',
+    close: 'Tutup',
+    previous: 'Properti sebelumnya',
+    next: 'Properti berikutnya',
+    area: 'm²',
+    rooms: 'kamar',
+    notice: 'Lokasi perkiraan untuk demonstrasi.',
+    noPhoto: 'Tidak ada foto'
+  }
+};
+
+type DistrictGroup = {
+  id: string;
+  label: string;
+  center: [number, number];
+  properties: PropertyPin[];
+};
+
+export function PropertyResultsMap({properties, locale}: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<LeafletMap | null>(null);
+  const layerRef = useRef<LayerGroup | null>(null);
+  const leafletRef = useRef<typeof import('leaflet') | null>(null);
+
+
+  const [ready, setReady] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [slide, setSlide] = useState(0);
+
+  const t = translations[locale] || translations.ar;
+  const rtl = locale === 'ar' || locale === 'ur';
+
+  // Regrouper les biens par quartier
+  const districts = useMemo(() => {
+    const grouped = new Map<string, DistrictGroup>();
+
+    for (const property of properties) {
+      const center = districtCenters[property.district];
+
+      // Ne pas inventer de position si le quartier est inconnu.
+      if (!center) continue;
+
+      if (!grouped.has(property.district)) {
+        grouped.set(property.district, {
+          id: property.district,
+          label: property.districtLabel,
+          center,
+          properties: []
+        });
+      }
+
+      grouped.get(property.district)!.properties.push(property);
+    }
+
+    return Array.from(grouped.values());
+  }, [properties]);
+
+  const selected = districts.find(
+    district => district.id === selectedDistrict
+  );
+
+  const currentIndex = selected
+    ? Math.min(slide, selected.properties.length - 1)
+    : 0;
+
+  const currentProperty = selected?.properties[currentIndex];
+
+  function selectDistrict(id: string) {
+    setSelectedDistrict(id);
+    setSlide(0);
+  }
+
+  function nextSlide() {
+    if (!selected) return;
+
+    setSlide(index =>
+      (index + 1) % selected.properties.length
+    );
+  }
+
+  function previousSlide() {
+    if (!selected) return;
+
+    setSlide(index =>
+      (index - 1 + selected.properties.length)
+      % selected.properties.length
+    );
+  }
+
+  // Initialisation de Leaflet une seule fois
+  useEffect(() => {
+    let cancelled = false;
+
+    async function initialize() {
+      const L = await import('leaflet');
+
+      if (cancelled || !containerRef.current) return;
+
+      const map = L.map(containerRef.current, {
+        zoomControl: true,
+        scrollWheelZoom: true
+      }).fitBounds(SAUDI_BOUNDS, {
+        padding: [25, 25],
+        maxZoom: 6
+      });
+
+      L.tileLayer(
+        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 19
+        }
+      ).addTo(map);
+
+      leafletRef.current = L;
+      mapRef.current = map;
+      layerRef.current = L.layerGroup().addTo(map);
+
+      setReady(true);
+
+      window.setTimeout(() => {
+        if (!cancelled) map.invalidateSize();
+      }, 200);
+    }
+
+    initialize().catch(console.error);
+
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+      leafletRef.current = null;
+      layerRef.current = null;
+
+    };
+  }, []);
+
+  // Un seul marqueur par quartier
+  useEffect(() => {
+    if (!ready) return;
+
+    const L = leafletRef.current;
+    const map = mapRef.current;
+    const layer = layerRef.current;
+
+    if (!L || !map || !layer) return;
+
+    layer.clearLayers();
+
+    for (const district of districts) {
+      const active = district.id === selectedDistrict;
+
+      // Creation securisee du contenu du marqueur
+      const markerContent = document.createElement('div');
+      markerContent.className = 'dh-zone-pin-content';
+
+      const districtName = document.createElement('span');
+      districtName.className = 'dh-zone-pin-name';
+      districtName.textContent = district.label;
+
+      const count = document.createElement('span');
+      count.className = 'dh-zone-pin-count';
+      count.textContent = String(district.properties.length);
+
+      markerContent.append(districtName, count);
+
+      const icon = L.divIcon({
+        className: active
+          ? 'dh-zone-pin dh-zone-pin-active'
+          : 'dh-zone-pin',
+        html: markerContent,
+        iconSize: [140, 44],
+        iconAnchor: [70, 44]
+      });
+
+      const marker = L.marker(district.center, {
+        icon,
+        keyboard: true,
+        riseOnHover: true,
+        zIndexOffset: active ? 1000 : 0
+      });
+
+      marker.on('click', () => {
+        selectDistrict(district.id);
+      });
+
+      marker.addTo(layer);
+    }
+
+  }, [ready, districts, selectedDistrict]);
+
+  return (
+    <section className="dh-zone-section">
+
+      <div className="dh-zone-header">
+        <div>
+          <span className="dh-zone-eyebrow">
+            DURRAT / EXPLORE
+          </span>
+
+          <h2>{t.title}</h2>
+        </div>
+
+        <span className="dh-zone-total">
+          {properties.length} {t.listings}
+        </span>
+      </div>
+
+      <div className="dh-zone-viewport">
+
+        <div
+          ref={containerRef}
+          className="dh-zone-map"
+          dir="ltr"
+          aria-label={t.title}
+        />
+
+        {/* CARROUSEL DU QUARTIER */}
+        {selected && currentProperty && (
+          <aside
+            className="dh-zone-carousel"
+            dir={rtl ? 'rtl' : 'ltr'}
+            aria-label={`${selected.label} - ${t.listings}`}
+          >
+
+            <div className="dh-carousel-top">
+              <div className="dh-carousel-district">
+                <MapPin size={16}/>
+
+                <strong>{selected.label}</strong>
+
+                <span>
+                  {selected.properties.length} {t.listings}
+                </span>
+              </div>
+
+              <button
+                className="dh-carousel-close"
+                type="button"
+                onClick={() => setSelectedDistrict(null)}
+                aria-label={t.close}
+              >
+                <X size={18}/>
+              </button>
+            </div>
+
+            <div className="dh-carousel-photo">
+
+              {currentProperty.imageUrl
+                ? <img
+                    src={currentProperty.imageUrl}
+                    alt={currentProperty.title}
+                    loading="lazy"
+                  />
+                : <div className="dh-carousel-no-photo">
+                    {t.noPhoto}
+                  </div>
+              }
+
+              {selected.properties.length > 1 && (
+                <>
+                  <button
+                    type="button"
+                    className="dh-carousel-arrow dh-carousel-prev"
+                    onClick={previousSlide}
+                    aria-label={t.previous}
+                  >
+                    <ChevronLeft size={19}/>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="dh-carousel-arrow dh-carousel-next"
+                    onClick={nextSlide}
+                    aria-label={t.next}
+                  >
+                    <ChevronRight size={19}/>
+                  </button>
+                </>
+              )}
+
+              <span className="dh-carousel-count">
+                {currentIndex + 1} / {selected.properties.length}
+              </span>
+            </div>
+
+            <div className="dh-carousel-body">
+
+              <h3>{currentProperty.title}</h3>
+
+              <strong className="dh-carousel-price" dir="ltr">
+                {new Intl.NumberFormat(locale).format(
+                  currentProperty.price
+                )} <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" />
+              </strong>
+
+              <div className="dh-carousel-specs">
+                {currentProperty.area !== undefined && (
+                  <span>
+                    <Maximize2 size={15}/>
+                    {currentProperty.area} {t.area}
+                  </span>
+                )}
+
+                {currentProperty.beds !== undefined &&
+                 currentProperty.beds > 0 && (
+                  <span>
+                    <BedDouble size={15}/>
+                    {currentProperty.beds} {t.rooms}
+                  </span>
+                )}
+              </div>
+
+              <div className="dh-carousel-bottom">
+
+                <div className="dh-carousel-dots">
+                  {selected.properties.map((property, index) => (
+                    <button
+                      key={property.id}
+                      type="button"
+                      className={
+                        index === currentIndex ? 'active' : ''
+                      }
+                      onClick={() => setSlide(index)}
+                      aria-label={`${index + 1} / ${selected.properties.length}`}
+                    />
+                  ))}
+                </div>
+
+                <Link
+                  href={`/${locale}/properties/${currentProperty.id}`}
+                  className="dh-carousel-link"
+                >
+                  {t.view}
+                  <ArrowUpLeft size={16}/>
+                </Link>
+              </div>
+            </div>
+
+          </aside>
+        )}
+
+      </div>
+
+      <p className="dh-zone-notice">{t.notice}</p>
+
+    </section>
+  );
+}

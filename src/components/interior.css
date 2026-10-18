@@ -1,0 +1,343 @@
+/* DURRAT INTERIOR PAGES */
+.interior-shell{background:#f7f6f1;min-height:100vh}
+.interior-cover{min-height:410px;background:#182321;position:relative;overflow:hidden;color:#f8f5ee}
+.interior-cover:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 75% 50%,#8d815b24,transparent 52%),linear-gradient(130deg,#1b2825,#17201f);pointer-events:none}
+.interior-cover-content{position:relative;z-index:2;padding-top:172px;padding-bottom:52px}
+.interior-kicker{display:flex;align-items:center;gap:11px;font-size:11px;font-weight:700;letter-spacing:.17em;text-transform:uppercase;color:#c8aa7c}
+.interior-kicker span{width:27px;height:1px;background:#c8aa7c}
+.interior-cover h1{font-size:clamp(34px,4vw,60px);line-height:1.35;font-weight:750;letter-spacing:-.05em;max-width:850px;margin:18px 0 12px}
+.interior-cover-content>p{font-size:14px;line-height:2;color:#b7c1b9;max-width:690px;margin:0}
+.interior-breadcrumb{margin-top:27px;display:flex;align-items:center;gap:9px;font-size:11px;color:#bbc0b7}
+.interior-breadcrumb a:hover{color:#d3b480}
+.interior-cover-symbol{position:absolute;inset-inline-end:9%;top:130px;width:350px;height:350px;background:url('/brand-gold.png') center/contain no-repeat;opacity:.065;pointer-events:none;transform:rotate(-12deg)}
+.interior-small-kicker{font:600 10px 'DM Sans',sans-serif;letter-spacing:.19em;color:#b69c70;text-transform:uppercase}
+.interior-demo-note{display:flex;gap:10px;align-items:center;padding:13px 16px;background:#f2ebdf;color:#8c7757;border:1px solid #e9dcc8;border-radius:7px;font-size:12px;line-height:1.7}
+.interior-demo-note svg{flex-shrink:0}
+.interior-catalog{padding-top:43px;padding-bottom:100px}
+.interior-catalog-layout{display:grid;grid-template-columns:290px minmax(0,1fr);align-items:start;gap:32px;margin-top:28px}
+.interior-filters{background:#fffefa;border:1px solid #e8e5dc;padding:24px;border-radius:7px;position:sticky;top:20px}
+.interior-filters-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:19px;margin-bottom:20px;border-bottom:1px solid #ebe8e1}
+.interior-filters-heading h2{display:flex;align-items:center;gap:9px;font-size:16px;margin:0}
+.interior-filters-heading button{display:flex;align-items:center;gap:5px;background:none;border:0;color:#a38965;font-size:11px;padding:5px}
+.interior-filter-fields{display:flex;flex-direction:column;gap:19px}
+.interior-filter-fields label,.interior-enquiry form>label{display:flex;flex-direction:column;gap:8px;color:#505b52;font-size:12px;font-weight:700}
+.interior-filter-fields select,.interior-filter-fields input,.interior-sort select,.interior-enquiry input:not([type=checkbox]){width:100%;background:#fbfaf7;border:1px solid #e3e1d9;border-radius:5px;height:47px;padding:0 12px;font-size:13px;color:#28352d;outline:none;min-width:0}
+.interior-filter-fields input:focus,.interior-filter-fields select:focus,.interior-enquiry input:focus{border-color:#bb9a68}
+.interior-filter-pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.interior-results-head{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:24px}
+.interior-results-head h2{font-size:27px;margin:9px 0 0;letter-spacing:-.04em}
+.interior-results-head h2 span{color:#b69c70}
+.interior-sort{display:flex;gap:9px;align-items:center;font-size:11px;color:#737b73;white-space:nowrap}
+.interior-sort select{width:175px}
+.interior-results-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}
+.interior-property-card{min-width:0;background:#fffefa;border:1px solid #e9e7df;border-radius:7px;overflow:hidden;transition:transform .25s,box-shadow .25s}
+.interior-property-card:hover{transform:translateY(-4px);box-shadow:0 15px 40px #23312912}
+.interior-card-image{height:245px;display:block;position:relative;overflow:hidden;background:#dedad1}
+.interior-card-image img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.interior-property-card:hover .interior-card-image img{transform:scale(1.04)}
+.interior-card-badge{position:absolute;inset-inline-start:15px;top:15px;background:#f8f6ed;color:#394238;font-size:11px;font-weight:700;border-radius:3px;padding:7px 12px}
+.interior-card-arrow{position:absolute;bottom:14px;inset-inline-end:15px;background:#c4a16d;color:#18221c;border-radius:50%;width:39px;height:39px;display:grid;place-items:center}
+.interior-card-body{padding:21px}
+.interior-card-location{display:flex;align-items:center;gap:6px;color:#9b8c73;font-size:11px}
+.interior-card-title{display:block;font-size:18px;font-weight:750;line-height:1.6;color:#2b362e;margin:9px 0 18px;min-height:55px}
+.interior-card-title:hover{color:#ad8856}
+.interior-card-specs{display:flex;flex-wrap:wrap;gap:15px;border-top:1px solid #eeece5;padding-top:15px;font-size:11px;color:#7b857c}
+.interior-card-specs span{display:flex;align-items:center;gap:5px}
+.interior-card-bottom{border-top:1px solid #eeece5;margin-top:18px;padding-top:16px;display:flex;justify-content:space-between;align-items:center}
+.interior-card-bottom strong{font-size:19px;color:#a88657}
+.interior-card-bottom small{font-size:11px}
+.interior-card-bottom>a{width:34px;height:34px;display:grid;place-items:center;border:1px solid #e4dfd2;border-radius:50%;color:#a88657}
+.interior-empty{text-align:center;background:#fffefa;padding:85px 20px;color:#9b9d92}
+.interior-empty svg{margin:auto}
+.interior-empty h3{font-size:17px}
+.interior-empty button{background:#c4a16d;border:0;padding:12px 25px;border-radius:4px}
+.interior-details{padding-top:44px;padding-bottom:95px}
+.interior-back{display:inline-flex;gap:9px;align-items:center;font-size:12px;font-weight:650;color:#8b744f;margin-bottom:28px}
+.interior-details-heading{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:25px}
+.interior-details-heading h2{font-size:clamp(26px,3vw,38px);letter-spacing:-.04em;margin:9px 0}
+.interior-details-heading p{display:flex;align-items:center;gap:8px;font-size:12px;color:#818b80;margin:0}
+.interior-details-price{font-size:27px;font-weight:800;color:#ad8956;white-space:nowrap}
+.interior-details-price small{font-size:14px}
+.interior-details-price span{display:block;font-size:11px;color:#939c91;text-align:center;font-weight:400}
+.interior-gallery{display:grid;grid-template-columns:minmax(0,1fr) 135px;gap:12px;margin-bottom:30px}
+.interior-main-photo{position:relative;height:480px;overflow:hidden;border-radius:6px;background:#dedbd2}
+.interior-main-photo img{width:100%;height:100%;object-fit:cover}
+.interior-main-photo span{position:absolute;bottom:18px;inset-inline-end:18px;color:white;background:#171c1bbd;padding:7px 13px;border-radius:4px;font-size:12px}
+.interior-thumbnails{display:flex;flex-direction:column;gap:11px}
+.interior-thumbnails button{height:calc((480px - 24px)/3);border:2px solid transparent;border-radius:5px;padding:0;overflow:hidden;background:#e1ddd5;opacity:.75}
+.interior-thumbnails button.active{border-color:#be9d69;opacity:1}
+.interior-thumbnails img{width:100%;height:100%;object-fit:cover}
+.interior-details-layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:28px;align-items:start}
+.interior-details-main{display:flex;flex-direction:column;gap:22px}
+.interior-content-panel{background:#fffefa;border:1px solid #eae7df;border-radius:7px;padding:30px}
+.interior-content-panel h3{font-size:20px;margin:0 0 24px}
+.interior-spec-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.interior-spec-grid>div{padding:15px 5px;display:flex;flex-direction:column;gap:8px;border-bottom:1px solid #ebe8e1}
+.interior-spec-grid svg{color:#bd9c6b}
+.interior-spec-grid span{font-size:11px;color:#9ba299}
+.interior-spec-grid strong{font-size:14px;color:#333e34}
+.interior-description{font-size:14px;line-height:2.2;color:#7a8478;margin-bottom:20px}
+.interior-location-placeholder{min-height:215px;background:linear-gradient(135deg,#f0ebe2,#e1e1d6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:6px;color:#977d58}
+.interior-location-placeholder strong{font-size:19px;color:#455044}
+.interior-location-placeholder span{font-size:12px}
+.interior-enquiry{background:#fffefa;border:1px solid #e9e6db;border-radius:8px;padding:27px}
+.interior-enquiry-side{position:sticky;top:20px}
+.interior-enquiry h3{font-size:20px;display:flex;gap:11px;align-items:center;margin:0 0 16px}
+.interior-enquiry h3 svg{color:#b29160}
+.interior-form-notice{background:#f6f0e6;padding:12px;border-radius:4px;font-size:11px;line-height:1.9;color:#907a57}
+.interior-enquiry form{display:flex;flex-direction:column;gap:16px;margin-top:20px}
+.interior-enquiry .interior-consent{flex-direction:row;align-items:flex-start;font-size:11px;line-height:1.8;font-weight:500}
+.interior-consent input{margin-top:4px;accent-color:#b69564;min-width:16px;min-height:16px}
+.interior-gold-button{width:100%;border:0;display:flex;align-items:center;justify-content:center;gap:9px;background:#c4a16d;color:#19241e;font-weight:800;padding:15px;border-radius:5px;min-height:52px;font-size:13px}
+.interior-gold-button:hover{background:#d7b784}
+.interior-success{display:flex;align-items:center;gap:9px;font-size:12px;line-height:1.8;color:#477459}
+.interior-related{padding-top:75px}
+.interior-section-heading h2{font-size:30px;margin:9px 0 24px}
+.interior-related-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.interior-related-grid .interior-card-image{height:200px}
+.interior-missing{padding:100px 0}
+.interior-about{padding-top:85px;padding-bottom:110px}
+.interior-about-top{display:grid;grid-template-columns:1fr 420px;align-items:center;gap:70px}
+.interior-about-top h2{font-size:clamp(34px,4vw,54px);line-height:1.4;letter-spacing:-.05em}
+.interior-about-top p{font-size:15px;line-height:2.4;color:#79847b}
+.interior-about-mark{background:#202b26;min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;position:relative;overflow:hidden;border-radius:6px}
+.interior-about-mark:after{content:"";position:absolute;inset:20px;border:1px solid #c9a67430;pointer-events:none}
+.interior-about-mark img{width:170px;height:170px;object-fit:contain}
+.interior-about-mark strong{color:#d3b27e;font-size:22px}
+.interior-about-mark span{color:#9aab9b;font:10px 'DM Sans',sans-serif;letter-spacing:.2em}
+.interior-values{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:70px}
+.interior-value{background:#fffefa;padding:35px;border:1px solid #e8e5dc}
+.interior-value-number{display:block;color:#c3a16f;font-size:12px;margin-bottom:35px}
+.interior-value svg{color:#ab8c60}
+.interior-value h3{font-size:21px;margin:20px 0 10px}
+.interior-value p{font-size:13px;color:#828b81;line-height:2}
+.interior-contact-layout{display:grid;grid-template-columns:1fr 470px;align-items:start;gap:100px;padding-top:85px;padding-bottom:120px}
+.interior-contact-intro h2{font-size:clamp(35px,4vw,57px);line-height:1.35;margin:20px 0}
+.interior-contact-intro>p{color:#828a80;font-size:15px;line-height:2.2}
+.interior-contact-place{display:flex;gap:13px;align-items:center;margin-top:40px;color:#b39669}
+.interior-contact-place div{display:flex;flex-direction:column;gap:4px}
+.interior-contact-place strong{color:#303b32;font-size:14px}
+.interior-contact-place span{color:#90988e;font-size:11px}
+.interior-contact-logo{margin-top:35px;opacity:.2}
+.interior-contact-logo img{width:140px}
+.interior-footer{background:#161f1b;color:#c0c8be}
+.interior-footer-inner{display:flex;justify-content:space-between;align-items:center;gap:25px;padding:36px 0;border-bottom:1px solid #ffffff20}
+.interior-footer-brand{display:flex;gap:13px;align-items:center;color:#cbb38e;font-weight:800;font-size:14px}
+.interior-footer-inner nav{display:flex;flex-wrap:wrap;gap:23px;font-size:12px}
+.interior-footer-inner nav a:hover{color:#d5b683}
+.interior-footer-base{padding:20px 0 27px;font-size:10px;color:#829085}
+@media(max-width:1100px){
+ .interior-catalog-layout{grid-template-columns:245px minmax(0,1fr);gap:18px}
+ .interior-details-layout{grid-template-columns:1fr 300px}
+ .interior-contact-layout{gap:40px;grid-template-columns:1fr 420px}
+ .interior-about-top{grid-template-columns:1fr 350px;gap:35px}
+}
+@media(max-width:850px){
+ .interior-catalog-layout{grid-template-columns:1fr}
+ .interior-filters{position:static}
+ .interior-filter-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .interior-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .interior-details-layout{grid-template-columns:1fr}
+ .interior-enquiry-side{position:static}
+ .interior-related-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .interior-about-top{grid-template-columns:1fr}
+ .interior-contact-layout{grid-template-columns:1fr}
+ .interior-values{grid-template-columns:1fr}
+}
+@media(max-width:550px){
+ .interior-cover{min-height:320px}
+ .interior-cover-content{padding-top:130px;padding-bottom:36px}
+ .interior-cover h1{font-size:32px}
+ .interior-cover-content>p{font-size:12px}
+ .interior-catalog{padding-top:25px}
+ .interior-filter-fields{grid-template-columns:1fr}
+ .interior-results-grid,.interior-related-grid{grid-template-columns:1fr}
+ .interior-results-head{align-items:start;flex-direction:column}
+ .interior-sort{width:100%;justify-content:space-between}
+ .interior-sort select{flex:1}
+ .interior-details-heading{flex-direction:column;align-items:start}
+ .interior-main-photo{height:290px}
+ .interior-gallery{grid-template-columns:1fr}
+ .interior-thumbnails{flex-direction:row}
+ .interior-thumbnails button{height:75px;flex:1}
+ .interior-spec-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .interior-content-panel{padding:22px}
+ .interior-about{padding-top:55px}
+ .interior-about-mark{min-height:320px}
+ .interior-footer-inner{align-items:start;flex-direction:column}
+ .interior-contact-layout{padding-top:55px}
+}
+
+/* =====================================
+   DURRAT — PREMIUM PROPERTY MAP MARKERS
+===================================== */
+
+.durrat-price-marker {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.durrat-marker-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: max-content;
+  min-width: 78px;
+  height: 37px;
+  padding: 0 12px;
+  margin: 0 auto;
+  background: #182621;
+  color: #ffffff;
+  border: 1px solid #c5a46e;
+  border-radius: 7px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition:
+    background .2s ease,
+    color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.durrat-marker-inner small {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: .8;
+}
+
+.durrat-marker-pointer {
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  background: #c5a46e;
+  transform: translateX(-50%) rotate(45deg);
+  z-index: -1;
+}
+
+.durrat-price-marker:hover .durrat-marker-inner,
+.durrat-price-marker.active .durrat-marker-inner {
+  background: #c5a46e;
+  color: #182621;
+  transform: translateY(-4px);
+  box-shadow: 0 7px 22px rgba(0,0,0,.25);
+}
+
+.durrat-price-marker:hover,
+.durrat-price-marker.active {
+  z-index: 1000 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .durrat-marker-inner {
+    transition: none;
+  }
+}
+/* AIRBNB STYLE PROPERTY MARKERS */
+
+.airbnb-price-marker {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.airbnb-marker-pill {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  width: max-content;
+  min-width: 72px;
+  height: 34px;
+  padding: 0 11px;
+
+  background: #ffffff;
+  color: #222222;
+
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 100px;
+
+  box-shadow:
+    0 2px 5px rgba(0,0,0,.18),
+    0 0 1px rgba(0,0,0,.12);
+
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    background .18s ease,
+    color .18s ease,
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.airbnb-marker-currency {
+  font-size: 9px;
+  font-weight: 600;
+  opacity: .75;
+}
+
+.airbnb-price-marker:hover .airbnb-marker-pill {
+  transform: translate(-50%, -50%) scale(1.1);
+  box-shadow:
+    0 4px 13px rgba(0,0,0,.25);
+}
+
+.airbnb-price-marker.is-selected .airbnb-marker-pill {
+  background: #222222;
+  color: #ffffff;
+  border-color: #222222;
+  transform: translate(-50%, -50%) scale(1.12);
+
+  box-shadow:
+    0 5px 16px rgba(0,0,0,.28);
+}
+
+.airbnb-price-marker.is-selected {
+  z-index: 1000 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .airbnb-marker-pill {
+    transition: none;
+  }
+}
+/* SUPABASE PREMIUM RESTORE */
+
+.interior-photo-empty {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 120px;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg,#e7e5dc,#d6d8cf);
+  color: #8c967f;
+  font-size: 16px;
+  text-align: center;
+  padding: 25px;
+}
+
+.interior-main-photo > .interior-photo-empty {
+  min-height: 100%;
+}
+
+.interior-thumbnails {
+  overflow-y: auto;
+  max-height: 480px;
+}

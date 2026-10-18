@@ -1,0 +1,91 @@
+﻿'use client';
+
+import {useEffect, useRef, useState} from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import {useLocale, useTranslations} from 'next-intl';
+import {usePathname} from 'next/navigation';
+import {ArrowUpLeft, ChevronDown, Menu, X} from 'lucide-react';
+
+const languages = [
+  {code: 'ar', label: 'Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©'},
+  {code: 'fr', label: 'FranÃ§ais'},
+  {code: 'en', label: 'English'},
+  {code: 'ru', label: 'Ð ÑƒÑÑÐºÐ¸Ð¹'},
+  {code: 'ur', label: 'Ø§Ø±Ø¯Ùˆ'},
+  {code: 'id', label: 'Bahasa Indonesia'}
+];
+
+export function Header() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const t = useTranslations('Nav');
+  const [languagesOpen, setLanguagesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const popup = useRef<HTMLDivElement>(null);
+  const activeLang = languages.find((language) => language.code === locale) || languages[0];
+
+  useEffect(() => {
+    const onOutsideClick = (e: MouseEvent) => {
+      if (!popup.current?.contains(e.target as Node)) setLanguagesOpen(false);
+    };
+    const onEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {setLanguagesOpen(false); setMenuOpen(false);}
+    };
+    document.addEventListener('pointerdown', onOutsideClick);
+    document.addEventListener('keydown', onEscape);
+    return () => {document.removeEventListener('pointerdown', onOutsideClick); document.removeEventListener('keydown', onEscape);};
+  }, []);
+
+  return (
+    <header className="site-header">
+      <div className="container header-inner">
+        <Link href={`/${locale}`} className="brand" aria-label="Durrat Al Hijrah">
+          <Image src="/brand-gold.png" alt="" width={52} height={52} priority className="brand-symbol" />
+          <span className="brand-name" dir="rtl">Ø¯Ø±Ø© Ø§Ù„Ù‡Ø¬Ø±Ø© <small>Ù„Ù„Ø¹Ù‚Ø§Ø±Ø§Øª</small></span>
+        </Link>
+
+        <nav aria-label={t('menu')} className="desktop-nav">
+          <Link href={`/${locale}/properties`}>{t('properties')}</Link>
+          <Link href={`/${locale}/about`}>{t('services')}</Link>
+          <Link href={`/${locale}/about`}>{t('about')}</Link>
+        </nav>
+
+        <div className="header-actions">
+          <div className="language-picker" ref={popup}>
+            <button type="button" className="language-button" aria-label={t('language')}
+              aria-haspopup="menu" aria-expanded={languagesOpen} onClick={() => setLanguagesOpen((v) => !v)}>
+              <Image src={`/flags/${activeLang.code}.svg`} className="flag-img" width={24} height={16} alt="" />
+              <span>{activeLang.label}</span>
+              <ChevronDown aria-hidden="true" size={14} className={languagesOpen ? 'chevron flipped' : 'chevron'} />
+            </button>
+            {languagesOpen && (
+              <div className="language-menu" role="menu" aria-label={t('language')}>
+                {languages.map((language) => <Link href={pathname.replace(/^\/(ar|fr|en|ru|ur|id)(?=\/|$)/, '/' + language.code)} key={language.code} role="menuitem"
+                  aria-current={locale === language.code ? 'page' : undefined}
+                  className={locale === language.code ? 'language-option selected' : 'language-option'}
+                  onClick={() => setLanguagesOpen(false)}>
+                  <Image src={`/flags/${language.code}.svg`} className="flag-img" width={24} height={16} alt="" />
+                  <span dir={language.code === 'ar' || language.code === 'ur' ? 'rtl' : 'ltr'}>{language.label}</span>
+                  {locale === language.code && <span className="lang-dot" />}
+                </Link>)}
+              </div>
+            )}
+          </div>
+          <Link href={`/${locale}/contact`} className="header-contact"><span>{t('contact')}</span><ArrowUpLeft size={15} aria-hidden="true" /></Link>
+          <button className="mobile-toggle" type="button" onClick={() => setMenuOpen((v) => !v)}
+            aria-label={t('menu')} aria-expanded={menuOpen} aria-controls="mobile-navigation">
+            {menuOpen ? <X size={24}/> : <Menu size={24}/>}
+          </button>
+        </div>
+      </div>
+      {menuOpen && <nav id="mobile-navigation" className="mobile-nav" aria-label={t('menu')}>
+        <Link href={`/${locale}/properties`} onClick={() => setMenuOpen(false)}>{t('properties')}</Link>
+        <Link href={`/${locale}/about`} onClick={() => setMenuOpen(false)}>{t('services')}</Link>
+        <Link href={`/${locale}/about`} onClick={() => setMenuOpen(false)}>{t('about')}</Link>
+        <Link href={`/${locale}/contact`} onClick={() => setMenuOpen(false)}>{t('contact')}</Link>
+      </nav>}
+    </header>
+  );
+}
+

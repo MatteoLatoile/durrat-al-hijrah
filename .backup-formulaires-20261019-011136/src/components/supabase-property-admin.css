@@ -1,0 +1,690 @@
+/* DURRAT SUPABASE PROPERTY ADMIN */
+
+.dh-pa {
+  min-height: 100vh;
+  background: #f7f8f5;
+  color: #24382b;
+  padding: 35px 22px 100px;
+}
+
+.dh-pa-container {
+  max-width: 1250px;
+  margin: 0 auto;
+}
+
+.dh-pa-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.dh-pa-heading h1 {
+  font-size: 34px;
+  font-weight: 900;
+  margin: 12px 0 5px;
+}
+
+.dh-pa-heading p,
+.dh-pa-muted,
+.dh-pa-note {
+  color: #849285;
+  font-size: 12px;
+}
+
+.dh-pa-back {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: #9b825b;
+  margin-bottom: 13px;
+}
+
+.dh-pa-eyebrow {
+  font-size: 10px;
+  color: #b49a71;
+  letter-spacing: .15em;
+}
+
+.dh-pa-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: #1d3527;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  padding: 14px 22px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.dh-pa-primary:hover {
+  background: #34533b;
+}
+
+.dh-pa-primary:disabled {
+  opacity: .55;
+}
+
+.dh-pa-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  background: white;
+  border: 1px solid #e5e9e3;
+  border-radius: 12px;
+  margin-bottom: 19px;
+}
+
+.dh-pa-toolbar input {
+  flex: 1;
+  min-width: 200px;
+}
+
+.dh-pa-toolbar input,
+.dh-pa-toolbar select,
+.dh-pa-toolbar button {
+  min-height: 42px;
+  padding: 0 13px;
+  background: #fff;
+  border: 1px solid #e0e5de;
+  border-radius: 7px;
+  color: #324638;
+}
+
+.dh-pa-toolbar button {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+}
+
+.dh-pa-table-wrap,
+.dh-pa-panel {
+  background: white;
+  border: 1px solid #e4e9e2;
+  border-radius: 13px;
+  overflow: hidden;
+}
+
+.dh-pa-table-wrap {
+  overflow-x: auto;
+}
+
+.dh-pa-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: right;
+  min-width: 750px;
+}
+
+.dh-pa-table th {
+  background: #f8f9f6;
+  color: #829083;
+  font-size: 11px;
+  padding: 17px;
+  border-bottom: 1px solid #e9eee8;
+}
+
+.dh-pa-table td {
+  padding: 18px;
+  border-bottom: 1px solid #f0f2ed;
+  font-size: 12px;
+}
+
+.dh-pa-table td strong,
+.dh-pa-table td small {
+  display: block;
+}
+
+.dh-pa-table td small {
+  color: #a6afa5;
+  margin-top: 5px;
+}
+
+.dh-pa-table td select {
+  border: 1px solid #e2e8e0;
+  border-radius: 6px;
+  padding: 7px;
+  background: #fff;
+}
+
+.dh-pa-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dh-pa-actions a,
+.dh-pa-actions button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: #f2f5f0;
+  border: 0;
+  border-radius: 7px;
+  color: #506a55;
+  cursor: pointer;
+}
+
+.dh-pa-actions button:hover {
+  background: #fff0ef;
+  color: #aa4444;
+}
+
+.dh-pa-empty {
+  padding: 60px 20px;
+  text-align: center;
+  color: #98a499;
+}
+
+.dh-pa-error {
+  background: #fff1ef;
+  border: 1px solid #f0d4cf;
+  color: #ab4141;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.dh-pa-form {
+  display: flex;
+  flex-direction: column;
+  gap: 23px;
+}
+
+.dh-pa-panel {
+  padding: 25px;
+}
+
+.dh-pa-panel h2 {
+  color: #23392c;
+  font-size: 20px;
+  font-weight: 850;
+  margin-bottom: 22px;
+}
+
+.dh-pa-fields,
+.dh-pa-translations {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.dh-pa-form label,
+.dh-pa-language label {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-width: 0;
+  font-size: 12px;
+  color: #66786a;
+  font-weight: 700;
+}
+
+.dh-pa-form input:not([type="checkbox"]):not([type="file"]),
+.dh-pa-form select,
+.dh-pa-form textarea {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #e0e7df;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #fdfefb;
+  color: #263e2c;
+  outline: none;
+}
+
+.dh-pa-form input:focus,
+.dh-pa-form select:focus,
+.dh-pa-form textarea:focus {
+  border-color: #b99a6f;
+}
+
+.dh-pa-checkbox {
+  flex-direction: row !important;
+  align-items: center;
+  margin-top: 22px;
+}
+
+.dh-pa-checkbox input {
+  accent-color: #24422f;
+}
+
+.dh-pa-language {
+  padding: 18px;
+  border: 1px solid #edf0ea;
+  border-radius: 10px;
+  background: #fafbf9;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dh-pa-language h3 {
+  font-size: 15px;
+  font-weight: 850;
+  color: #a68a60;
+}
+
+.dh-pa-upload {
+  border: 2px dashed #d8dfd5;
+  padding: 30px;
+  border-radius: 12px;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  gap: 12px;
+  background: #fafbf8;
+}
+
+.dh-pa-upload input {
+  max-width: 270px;
+  font-size: 11px;
+}
+
+.dh-pa-photos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 13px;
+  margin-top: 22px;
+}
+
+.dh-pa-photo {
+  position: relative;
+  width: 145px;
+  height: 110px;
+  overflow: hidden;
+  border-radius: 9px;
+}
+
+.dh-pa-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dh-pa-photo button {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  color: #9f3b3b;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+
+.dh-pa-cover {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  background: #1e3628;
+  color: white;
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 4px 7px;
+}
+
+.dh-pa-savebar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px;
+  background: white;
+  border: 1px solid #e3e9e1;
+  border-radius: 12px;
+}
+
+.dh-pa-savebar > a {
+  color: #849185;
+  font-size: 13px;
+}
+
+@media(max-width:750px) {
+  .dh-pa-fields,
+  .dh-pa-translations {
+    grid-template-columns: 1fr;
+  }
+
+  .dh-pa-heading h1 {
+    font-size: 27px;
+  }
+}
+
+/* DURRAT - PROPERTY PHOTO PREVIEW */
+
+.dh-photo-preview {
+  margin-top: 24px;
+  padding: 20px;
+  background: #fafbf8;
+  border: 1px solid #e2e8dd;
+  border-radius: 12px;
+}
+
+.dh-photo-preview-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dh-photo-preview-heading > div {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #203a29;
+}
+
+.dh-photo-preview-heading strong {
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.dh-photo-preview-heading > span {
+  background: #e9eee6;
+  color: #667b68;
+  border-radius: 30px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dh-photo-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.dh-photo-preview-card {
+  min-width: 0;
+  background: #fff;
+  border: 1px solid #e5e9e2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.dh-photo-preview-image {
+  height: 145px;
+  position: relative;
+  background: #ebece7;
+  overflow: hidden;
+}
+
+.dh-photo-preview-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.dh-photo-preview-number {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: #203629;
+  color: #fff;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dh-photo-preview-remove {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 31px;
+  height: 31px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  color: #b83f3f;
+  box-shadow: 0 2px 9px rgba(0,0,0,.15);
+  cursor: pointer;
+}
+
+.dh-photo-preview-remove:hover {
+  background: #b83f3f;
+  color: #fff;
+}
+
+.dh-photo-preview-info {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.dh-photo-preview-info span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #45584a;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dh-photo-preview-info small {
+  color: #9ba69a;
+  font-size: 10px;
+}
+
+.dh-photo-preview-notice {
+  margin: 16px 0 0;
+  font-size: 11px;
+  color: #8e9c8c;
+  line-height: 1.8;
+}
+
+@media(max-width:900px) {
+  .dh-photo-preview-grid {
+    grid-template-columns: repeat(3, minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px) {
+  .dh-photo-preview-grid {
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 9px;
+  }
+
+  .dh-photo-preview-image {
+    height: 120px;
+  }
+
+  .dh-photo-preview {
+    padding: 13px;
+  }
+}
+
+/* DURRAT PHOTO MANAGER V2 */
+
+.dh-photo-manager-upload {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 175px;
+  padding: 26px;
+  border: 2px dashed #d6decf;
+  border-radius: 12px;
+  background: #fafbf8;
+  color: #35513c;
+  cursor: pointer;
+  text-align: center;
+}
+
+.dh-photo-manager-upload:hover {
+  background: #f1f5ee;
+  border-color: #b69a70;
+}
+
+.dh-photo-manager-upload strong {
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.dh-photo-manager-upload span,
+.dh-photo-manager-upload small {
+  font-size: 11px;
+  color: #8c9a8d;
+}
+
+.dh-photo-manager-upload input {
+  width: 100%;
+  max-width: 270px;
+  font-size: 11px;
+}
+
+.dh-photo-manager-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 26px 0 18px;
+}
+
+.dh-photo-manager-heading strong {
+  font-size: 17px;
+  color: #203628;
+}
+
+.dh-photo-manager-heading > span {
+  font-size: 12px;
+  color: #9a8a70;
+}
+
+.dh-photo-manager-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap: 14px;
+}
+
+.dh-photo-manager-item {
+  position: relative;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  border-radius: 11px;
+  background: #e8eae4;
+  border: 2px solid transparent;
+}
+
+.dh-photo-manager-item.selected {
+  border-color: #c5a46e;
+  box-shadow: 0 0 0 2px rgba(197,164,110,.2);
+}
+
+.dh-photo-manager-item > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dh-photo-manager-top {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  left: 9px;
+  right: 9px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dh-photo-manager-top button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,.96);
+  color: #304a35;
+  cursor: pointer;
+  box-shadow: 0 2px 9px #0002;
+}
+
+.dh-photo-manager-item.selected .dh-photo-manager-star {
+  background: #c5a46e;
+  color: #203628;
+}
+
+.dh-photo-manager-top .dh-photo-manager-delete {
+  color: #b33c3c;
+}
+
+.dh-photo-manager-top button:hover {
+  transform: translateY(-1px);
+}
+
+.dh-photo-manager-top button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+
+.dh-photo-manager-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 25px 10px 10px;
+  color: #fff;
+  background: linear-gradient(transparent,rgba(0,0,0,.65));
+}
+
+.dh-photo-manager-bottom span {
+  font-size: 11px;
+  font-weight: 750;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dh-photo-manager-bottom .cover {
+  color: #ffe2ae;
+}
+
+.dh-photo-manager-note {
+  margin-top: 18px;
+  font-size: 11px;
+  line-height: 1.9;
+  color: #899788;
+}
+
+@media(max-width:900px) {
+  .dh-photo-manager-grid {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+  }
+}
+
+@media(max-width:600px) {
+  .dh-photo-manager-grid {
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 9px;
+  }
+
+  .dh-photo-manager-top button {
+    width: 30px;
+    height: 30px;
+  }
+}

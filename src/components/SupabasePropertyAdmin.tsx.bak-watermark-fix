@@ -1,0 +1,1124 @@
+'use client';
+
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type FormEvent
+} from 'react';
+
+import Link from 'next/link';
+import {useRouter} from 'next/navigation';
+import {createClient} from '@/lib/supabase/client';
+
+import {
+  Plus,
+  Save,
+  Trash2,
+  Pencil,
+  ImagePlus,
+  ArrowRight,
+  RefreshCw,
+  MapPin,
+  Eye,
+  EyeOff
+} from 'lucide-react';
+
+import './supabase-property-admin.css';
+
+const languages = [
+  ['ar', 'العربية'],
+  ['fr', 'الفرنسية'],
+  ['en', 'الإنجليزية'],
+  ['ru', 'الروسية'],
+  ['ur', 'الأردية'],
+  ['id', 'الإندونيسية']
+] as const;
+
+type Translations = Record<string, string>;
+
+type Status =
+  | 'draft'
+  | 'published'
+  | 'sold'
+  | 'rented'
+  | 'archived';
+
+type District = {
+  id: string;
+  names: Translations;
+  latitude: number | null;
+  longitude: number | null;
+  is_active: boolean;
+};
+
+type Photo = {
+  id: string;
+  storage_path: string;
+  is_cover: boolean;
+  sort_order: number;
+};
+
+type Property = {
+  id: string;
+  reference: string;
+  title: Translations;
+  description: Translations;
+  district_id: string | null;
+  property_type: string;
+  transaction_type: string;
+  status: Status;
+  price: number;
+  area_m2: number | null;
+  land_area_m2: number | null;
+  bedrooms: number | null;
+  bathrooms: number | null;
+  living_rooms: number | null;
+  floor_number: number | null;
+  total_floors: number | null;
+  parking_spaces: number | null;
+  property_age_years: number | null;
+  rent_period: string | null;
+  furnished: string;
+  is_featured: boolean;
+  property_images?: Photo[];
+};
+
+const types = [
+  ['apartment', 'شقة'],
+  ['villa', 'فيلا'],
+  ['studio', 'استوديو'],
+  ['land', 'أرض'],
+  ['building', 'عمارة'],
+  ['shop', 'محل تجاري'],
+  ['office', 'مكتب'],
+  ['warehouse', 'مستودع'],
+  ['other', 'أخرى']
+];
+
+const statuses: [Status, string][] = [
+  ['draft', 'مسودة'],
+  ['published', 'منشور'],
+  ['sold', 'مباع'],
+  ['rented', 'مؤجر'],
+  ['archived', 'مؤرشف']
+];
+
+const empty = {
+  title: {} as Translations,
+  description: {} as Translations,
+  district_id: '',
+  property_type: 'apartment',
+  transaction_type: 'sale',
+  status: 'draft' as Status,
+  price: '',
+  area_m2: '',
+  land_area_m2: '',
+  bedrooms: '',
+  bathrooms: '',
+  living_rooms: '',
+  floor_number: '',
+  total_floors: '',
+  parking_spaces: '',
+  property_age_years: '',
+  rent_period: '',
+  furnished: 'unfurnished',
+  is_featured: false
+};
+
+type FormState = typeof empty;
+
+function asTranslations(value: unknown): Translations {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).filter(
+      (entry): entry is [string, string] =>
+        typeof entry[1] === 'string'
+    )
+  );
+}
+
+function numberOrNull(value: string): number | null {
+  return value.trim() === '' ? null : Number(value);
+}
+
+function money(value: number): string {
+  return new Intl.NumberFormat('ar-SA').format(value) + ' ⃁';
+}
+
+function propertyName(property: Property): string {
+  return (
+    property.title?.ar ||
+    property.title?.en ||
+    property.reference
+  );
+}
+
+function storageUrl(path: string): string {
+  return createClient()
+    .storage
+    .from('property-images')
+    .getPublicUrl(path)
+    .data.publicUrl;
+}
+
+// ===================================================
+// LISTE DES ANNONCES SUPABASE
+// ===================================================
+
+export function SupabasePropertyList() {
+  const supabase = useMemo(() => createClient(), []);
+
+  const [items, setItems] = useState<Property[]>([]);
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [search, setSearch] = useState('');
+  const [filter, setFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [message, setMessage] = useState('');
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setMessage('');
+
+    const [propertiesResponse, districtsResponse] = await Promise.all([
+      supabase
+        .from('properties')
+        .select('id,reference,title,description,district_id,property_type,transaction_type,status,price,area_m2,land_area_m2,bedrooms,bathrooms,living_rooms,floor_number,total_floors,parking_spaces,property_age_years,rent_period,furnished,is_featured')
+        .order('created_at', {ascending: false})
+        .limit(200),
+
+      supabase
+        .from('districts')
+        .select('id,names,latitude,longitude,is_active')
+    ]);
+
+    if (propertiesResponse.error || districtsResponse.error) {
+      setMessage(
+        propertiesResponse.error?.message ||
+        districtsResponse.error?.message ||
+        'تعذر تحميل البيانات'
+      );
+    } else {
+      setItems((propertiesResponse.data || []) as unknown as Property[]);
+      setDistricts(
+        (districtsResponse.data || []) as unknown as District[]
+      );
+    }
+
+    setLoading(false);
+  }, [supabase]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
+  async function changeStatus(property: Property, status: Status) {
+    if (busy) return;
+
+    if (status === 'published') {
+      const district = districts.find(
+        item => item.id === property.district_id
+      );
+
+      if (
+        !district ||
+        !district.is_active ||
+        !Number.isFinite(district.latitude) ||
+        !Number.isFinite(district.longitude) ||
+        district.latitude === null ||
+        district.longitude === null
+      ) {
+        setMessage(
+          'يجب اختيار حي نشط له إحداثيات GPS قبل النشر.'
+        );
+        return;
+      }
+
+      if (!property.title?.ar || Number(property.price) <= 0) {
+        setMessage('يرجى استكمال اسم العقار والسعر قبل النشر.');
+        return;
+      }
+    }
+
+    setBusy(property.id);
+    setMessage('');
+
+    const {error} = await supabase
+      .from('properties')
+      .update({status})
+      .eq('id', property.id);
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      await load();
+    }
+
+    setBusy(null);
+  }
+
+  async function deleteProperty(property: Property) {
+    if (busy) return;
+
+    if (
+      property.status !== 'draft' &&
+      property.status !== 'archived'
+    ) {
+      setMessage(
+        'يجب تحويل العقار إلى مسودة أو مؤرشف قبل حذفه.'
+      );
+      return;
+    }
+
+    if (!confirm(`هل تريد حذف العقار ${property.reference}؟`)) {
+      return;
+    }
+
+    setBusy(property.id);
+
+    const {data: photos, error: photosError} = await supabase
+      .from('property_images')
+      .select('storage_path')
+      .eq('property_id', property.id);
+
+    if (photosError) {
+      setMessage(photosError.message);
+      setBusy(null);
+      return;
+    }
+
+    const {error} = await supabase
+      .from('properties')
+      .delete()
+      .eq('id', property.id);
+
+    if (error) {
+      setMessage(error.message);
+    } else {
+      const paths = (photos || []).map(photo => photo.storage_path);
+
+      if (paths.length > 0) {
+        const {error: storageError} = await supabase.storage
+          .from('property-images')
+          .remove(paths);
+
+        if (storageError) {
+          setMessage('تم حذف العقار ولكن تعذر تنظيف بعض الصور.');
+        }
+      }
+
+      await load();
+    }
+
+    setBusy(null);
+  }
+
+  const filtered = items.filter(item => {
+    if (filter !== 'all' && item.status !== filter) return false;
+
+    const district = districts.find(
+      value => value.id === item.district_id
+    );
+
+    const text = [
+      propertyName(item),
+      item.reference,
+      district?.names?.ar || ''
+    ].join(' ').toLowerCase();
+
+    return text.includes(search.toLowerCase());
+  });
+
+  return (
+    <main className="dh-pa" dir="rtl">
+      <div className="dh-pa-container">
+
+        <div className="dh-pa-heading">
+          <div>
+            <Link href="/ar/admin/dashboard" className="dh-pa-back">
+              <ArrowRight size={15}/> لوحة الإدارة
+            </Link>
+
+            <span className="dh-pa-eyebrow">
+              DURRAT / DATABASE
+            </span>
+
+            <h1>إدارة العقارات</h1>
+            <p>إدارة العقارات المحفوظة في Supabase</p>
+          </div>
+
+          <Link href="/ar/admin/properties/new" className="dh-pa-primary">
+            <Plus size={18}/> إضافة عقار
+          </Link>
+        </div>
+
+        {message && (
+          <div className="dh-pa-error" role="alert">
+            {message}
+          </div>
+        )}
+
+        <div className="dh-pa-toolbar">
+          <input
+            placeholder="البحث عن عقار أو حي..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+          />
+
+          <select
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+          >
+            <option value="all">كل الحالات</option>
+            {statuses.map(([value, name]) =>
+              <option key={value} value={value}>{name}</option>
+            )}
+          </select>
+
+          <button type="button" onClick={() => void load()}>
+            <RefreshCw size={17}/> تحديث
+          </button>
+        </div>
+
+        <div className="dh-pa-table-wrap">
+          <table className="dh-pa-table">
+            <thead>
+              <tr>
+                <th>العقار</th>
+                <th>الحي</th>
+                <th>السعر</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {filtered.map(property => {
+                const district = districts.find(
+                  item => item.id === property.district_id
+                );
+
+                return (
+                  <tr key={property.id}>
+                    <td>
+                      <strong>{propertyName(property)}</strong>
+                      <small>{property.reference}</small>
+                    </td>
+
+                    <td>{district?.names?.ar || '—'}</td>
+
+                    <td dir="ltr">{money(property.price)}</td>
+
+                    <td>
+                      <select
+                        value={property.status}
+                        disabled={busy !== null}
+                        onChange={e => void changeStatus(
+                          property,
+                          e.target.value as Status
+                        )}
+                      >
+                        {statuses.map(([value, name]) =>
+                          <option key={value} value={value}>
+                            {name}
+                          </option>
+                        )}
+                      </select>
+                    </td>
+
+                    <td>
+                      <div className="dh-pa-actions">
+                        <Link
+                          href={`/ar/admin/properties/${property.id}/edit`}
+                          title="تعديل"
+                        >
+                          <Pencil size={17}/>
+                        </Link>
+
+                        {property.status === 'published' && (
+                          <Link
+                            href={`/ar/properties-live/${property.id}`}
+                            title="عرض على الموقع"
+                          >
+                            <Eye size={17}/>
+                          </Link>
+                        )}
+
+                        <button
+                          type="button"
+                          disabled={busy !== null}
+                          onClick={() => void deleteProperty(property)}
+                          title="حذف"
+                        >
+                          <Trash2 size={17}/>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+
+          {!loading && filtered.length === 0 && (
+            <div className="dh-pa-empty">
+              لا توجد عقارات مطابقة للبحث
+            </div>
+          )}
+
+          {loading && (
+            <div className="dh-pa-empty">
+              جارٍ تحميل العقارات...
+            </div>
+          )}
+        </div>
+
+        <p className="dh-pa-note">
+          تعرض هذه الصفحة آخر 200 عقار. سيتم إضافة ترقيم الصفحات لاحقاً.
+        </p>
+
+      </div>
+    </main>
+  );
+}
+
+// ===================================================
+// FORMULAIRE AJOUT / MODIFICATION
+// ===================================================
+
+export function SupabasePropertyEditor({
+  propertyId
+}: {
+  propertyId?: string;
+}) {
+  const supabase = useMemo(() => createClient(), []);
+  const router = useRouter();
+
+  const [districts, setDistricts] = useState<District[]>([]);
+  const [form, setForm] = useState<FormState>({...empty});
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [photoBusy, setPhotoBusy] = useState(false);
+
+  const [savedId, setSavedId] = useState(propertyId || '');
+
+  const editing = Boolean(propertyId);
+
+  const loadPhotos = useCallback(async (id: string) => {
+    const {data, error} = await supabase
+      .from('property_images')
+      .select('id,storage_path,is_cover,sort_order')
+      .eq('property_id', id)
+      .order('sort_order');
+
+    if (error) throw error;
+
+    setPhotos((data || []) as Photo[]);
+  }, [supabase]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      try {
+        const {data: districtData, error: districtError} =
+          await supabase
+            .from('districts')
+            .select('id,names,latitude,longitude,is_active')
+            .order('created_at', {ascending: false});
+
+        if (districtError) throw districtError;
+
+        if (active) {
+          setDistricts(
+            (districtData || []) as unknown as District[]
+          );
+        }
+
+        if (propertyId) {
+          const {data, error: propertyError} = await supabase
+            .from('properties')
+            .select('*')
+            .eq('id', propertyId)
+            .single();
+
+          if (propertyError) throw propertyError;
+
+          if (active) {
+            const property = data as Property;
+
+            setForm({
+              title: asTranslations(property.title),
+              description: asTranslations(property.description),
+              district_id: property.district_id || '',
+              property_type: property.property_type,
+              transaction_type: property.transaction_type,
+              status: property.status,
+              price: String(property.price),
+              area_m2: String(property.area_m2 ?? ''),
+              land_area_m2: String(property.land_area_m2 ?? ''),
+              bedrooms: String(property.bedrooms ?? ''),
+              bathrooms: String(property.bathrooms ?? ''),
+              living_rooms: String(property.living_rooms ?? ''),
+              floor_number: String(property.floor_number ?? ''),
+              total_floors: String(property.total_floors ?? ''),
+              parking_spaces: String(property.parking_spaces ?? ''),
+              property_age_years: String(property.property_age_years ?? ''),
+              rent_period: property.rent_period || '',
+              furnished: property.furnished || 'unfurnished',
+              is_featured: property.is_featured
+            });
+
+            await loadPhotos(propertyId);
+          }
+        }
+      } catch (cause) {
+        if (active) {
+          setError(
+            cause instanceof Error
+              ? cause.message
+              : 'تعذر تحميل البيانات'
+          );
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    void load();
+
+    return () => {
+      active = false;
+    };
+  }, [propertyId, supabase, loadPhotos]);
+
+  function update<K extends keyof FormState>(
+    key: K,
+    value: FormState[K]
+  ) {
+    setForm(previous => ({...previous, [key]: value}));
+  }
+
+  function translateField(
+    field: 'title' | 'description',
+    lang: string,
+    value: string
+  ) {
+    setForm(previous => ({
+      ...previous,
+      [field]: {
+        ...previous[field],
+        [lang]: value
+      }
+    }));
+  }
+
+  async function removePhoto(photo: Photo) {
+    if (!savedId || photoBusy) return;
+
+    if (!confirm('هل تريد حذف الصورة؟')) return;
+
+    setPhotoBusy(true);
+    setError('');
+
+    try {
+      const {error: dbError} = await supabase
+        .from('property_images')
+        .delete()
+        .eq('id', photo.id);
+
+      if (dbError) throw dbError;
+
+      const {error: storageError} = await supabase.storage
+        .from('property-images')
+        .remove([photo.storage_path]);
+
+      if (storageError) {
+        throw new Error(
+          'تم حذف الصورة من العقار، ولكن تعذر حذف الملف من التخزين.'
+        );
+      }
+
+      await loadPhotos(savedId);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'خطأ');
+    } finally {
+      setPhotoBusy(false);
+    }
+  }
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (saving) return;
+
+    setError('');
+
+    if (!form.title.ar?.trim()) {
+      setError('اسم العقار بالعربية مطلوب.');
+      return;
+    }
+
+    if (!Number.isFinite(Number(form.price)) ||
+        Number(form.price) <= 0) {
+      setError('يرجى إدخال سعر صحيح.');
+      return;
+    }
+
+    if (form.status === 'published') {
+      const selected = districts.find(
+        district => district.id === form.district_id
+      );
+
+      if (
+        !selected ||
+        !selected.is_active ||
+        selected.latitude === null ||
+        selected.longitude === null ||
+        !Number.isFinite(selected.latitude) ||
+        !Number.isFinite(selected.longitude)
+      ) {
+        setError(
+          'للنشر، اختر حياً نشطاً له إحداثيات GPS صحيحة.'
+        );
+        return;
+      }
+    }
+
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+      'image/avif'
+    ];
+
+    for (const file of files) {
+      if (
+        !allowedTypes.includes(file.type) ||
+        file.size > 10 * 1024 * 1024
+      ) {
+        setError(
+          'الصور يجب أن تكون JPEG أو PNG أو WEBP أو AVIF وأقل من 10MB.'
+        );
+        return;
+      }
+    }
+
+    setSaving(true);
+
+    try {
+      const payload = {
+        title: form.title,
+        description: form.description,
+        district_id: form.district_id || null,
+        property_type: form.property_type,
+        transaction_type: form.transaction_type,
+        price: Number(form.price),
+        area_m2: numberOrNull(form.area_m2),
+        land_area_m2: numberOrNull(form.land_area_m2),
+        bedrooms: numberOrNull(form.bedrooms),
+        bathrooms: numberOrNull(form.bathrooms),
+        living_rooms: numberOrNull(form.living_rooms),
+        floor_number: numberOrNull(form.floor_number),
+        total_floors: numberOrNull(form.total_floors),
+        parking_spaces: numberOrNull(form.parking_spaces),
+        property_age_years: numberOrNull(form.property_age_years),
+        rent_period: form.transaction_type === 'rent'
+          ? form.rent_period || null
+          : null,
+        furnished: form.furnished,
+        is_featured: form.is_featured
+      };
+
+      let id = savedId;
+
+      if (id) {
+        const {error: updateError} = await supabase
+          .from('properties')
+          .update({
+            ...payload,
+            status: form.status
+          })
+          .eq('id', id);
+
+        if (updateError) throw updateError;
+
+      } else {
+        // Creation en brouillon avant l'envoi des images.
+        const {data, error: createError} = await supabase
+          .from('properties')
+          .insert({
+            ...payload,
+            status: 'draft'
+          })
+          .select('id')
+          .single();
+
+        if (createError) throw createError;
+
+        id = data.id;
+        setSavedId(id);
+      }
+
+      const existingCount = photos.length;
+
+      const extensions: Record<string, string> = {
+        'image/jpeg': 'jpg',
+        'image/png': 'png',
+        'image/webp': 'webp',
+        'image/avif': 'avif'
+      };
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+
+        const extension = extensions[file.type];
+        const storagePath =
+          `${id}/${crypto.randomUUID()}.${extension}`;
+
+        const {error: uploadError} = await supabase.storage
+          .from('property-images')
+          .upload(storagePath, file, {
+            contentType: file.type,
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const {error: imageError} = await supabase
+          .from('property_images')
+          .insert({
+            property_id: id,
+            storage_path: storagePath,
+            sort_order: existingCount + i,
+            is_cover: existingCount === 0 && i === 0
+          });
+
+        if (imageError) {
+          await supabase.storage
+            .from('property-images')
+            .remove([storagePath]);
+
+          throw imageError;
+        }
+      }
+
+      if (!propertyId && form.status !== 'draft') {
+        const {error: publishError} = await supabase
+          .from('properties')
+          .update({status: form.status})
+          .eq('id', id);
+
+        if (publishError) throw publishError;
+      }
+
+      router.replace(`/ar/admin/properties/${id}/edit`);
+      router.refresh();
+
+    } catch (cause) {
+      setError(
+        (cause instanceof Error ? cause.message : 'خطأ') +
+        ' — قد يكون العقار قد حُفظ جزئياً. تحقق من قائمة العقارات.'
+      );
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <main className="dh-pa" dir="rtl">
+        <div className="dh-pa-empty">جارٍ تحميل النموذج...</div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="dh-pa" dir="rtl">
+      <div className="dh-pa-container">
+
+        <div className="dh-pa-heading">
+          <div>
+            <Link href="/ar/admin/properties" className="dh-pa-back">
+              <ArrowRight size={15}/> جميع العقارات
+            </Link>
+
+            <h1>
+              {editing ? 'تعديل العقار' : 'إضافة عقار جديد'}
+            </h1>
+
+            <p>يتم حفظ المعلومات في Supabase</p>
+          </div>
+        </div>
+
+        {error && (
+          <div className="dh-pa-error" role="alert">{error}</div>
+        )}
+
+        <form onSubmit={save} className="dh-pa-form">
+
+          <section className="dh-pa-panel">
+            <h2>المعلومات الأساسية</h2>
+
+            <div className="dh-pa-fields">
+
+              <label>
+                <span>الحي</span>
+                <select
+                  value={form.district_id}
+                  onChange={e => update('district_id', e.target.value)}
+                >
+                  <option value="">اختر الحي</option>
+
+                  {districts.map(district => (
+                    <option key={district.id} value={district.id}>
+                      {district.names?.ar || district.id}
+                      {!district.is_active ? ' (غير نشط)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>نوع العقار</span>
+                <select
+                  value={form.property_type}
+                  onChange={e => update('property_type', e.target.value)}
+                >
+                  {types.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>نوع العملية</span>
+                <select
+                  value={form.transaction_type}
+                  onChange={e => update('transaction_type', e.target.value)}
+                >
+                  <option value="sale">بيع</option>
+                  <option value="rent">إيجار</option>
+                </select>
+              </label>
+
+              <label>
+                <span>السعر بالريال السعودي ⃁</span>
+                <input
+                  type="number"
+                  min="1"
+                  step="any"
+                  value={form.price}
+                  onChange={e => update('price', e.target.value)}
+                  required
+                  dir="ltr"
+                />
+              </label>
+
+              {form.transaction_type === 'rent' && (
+                <label>
+                  <span>مدة الإيجار</span>
+                  <select
+                    value={form.rent_period}
+                    onChange={e => update('rent_period', e.target.value)}
+                  >
+                    <option value="">غير محدد</option>
+                    <option value="daily">يومي</option>
+                    <option value="monthly">شهري</option>
+                    <option value="yearly">سنوي</option>
+                  </select>
+                </label>
+              )}
+
+              <label>
+                <span>الحالة</span>
+                <select
+                  value={form.status}
+                  onChange={e => update('status', e.target.value as Status)}
+                >
+                  {statuses.map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label>
+                <span>التأثيث</span>
+                <select
+                  value={form.furnished}
+                  onChange={e => update('furnished', e.target.value)}
+                >
+                  <option value="unfurnished">غير مفروش</option>
+                  <option value="furnished">مفروش</option>
+                  <option value="partially_furnished">مفروش جزئياً</option>
+                </select>
+              </label>
+
+            </div>
+
+            <label className="dh-pa-checkbox">
+              <input
+                type="checkbox"
+                checked={form.is_featured}
+                onChange={e => update('is_featured', e.target.checked)}
+              />
+              عقار مميز
+            </label>
+
+          </section>
+
+          <section className="dh-pa-panel">
+            <h2>مواصفات العقار</h2>
+
+            <div className="dh-pa-fields">
+              {([
+                ['area_m2', 'المساحة م²'],
+                ['land_area_m2', 'مساحة الأرض م²'],
+                ['bedrooms', 'غرف النوم'],
+                ['bathrooms', 'دورات المياه'],
+                ['living_rooms', 'غرف المعيشة'],
+                ['floor_number', 'رقم الطابق'],
+                ['total_floors', 'عدد الطوابق'],
+                ['parking_spaces', 'مواقف السيارات'],
+                ['property_age_years', 'عمر العقار بالسنوات']
+              ] as const).map(([key, label]) => (
+                <label key={key}>
+                  <span>{label}</span>
+
+                  <input
+                    type="number"
+                    min={key === 'floor_number' ? undefined : 0}
+                    step="any"
+                    dir="ltr"
+                    value={form[key]}
+                    onChange={e => update(key, e.target.value)}
+                  />
+                </label>
+              ))}
+            </div>
+          </section>
+
+          <section className="dh-pa-panel">
+            <h2>الترجمات — 6 لغات</h2>
+
+            <div className="dh-pa-translations">
+              {languages.map(([lang, label]) => (
+                <div className="dh-pa-language" key={lang}>
+                  <h3>{label}</h3>
+
+                  <label>
+                    <span>عنوان العقار {lang === 'ar' ? '*' : ''}</span>
+
+                    <input
+                      value={form.title[lang] || ''}
+                      onChange={e =>
+                        translateField('title', lang, e.target.value)
+                      }
+                      dir={lang === 'ar' || lang === 'ur' ? 'rtl' : 'ltr'}
+                      required={lang === 'ar'}
+                    />
+                  </label>
+
+                  <label>
+                    <span>وصف العقار</span>
+
+                    <textarea
+                      rows={4}
+                      value={form.description[lang] || ''}
+                      onChange={e =>
+                        translateField('description', lang, e.target.value)
+                      }
+                      dir={lang === 'ar' || lang === 'ur' ? 'rtl' : 'ltr'}
+                    />
+                  </label>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <section className="dh-pa-panel">
+            <h2>صور العقار</h2>
+
+            <p className="dh-pa-muted">
+              JPEG, PNG, WEBP ou AVIF — maximum 10 Mo par photo.
+            </p>
+
+            <label className="dh-pa-upload">
+              <ImagePlus size={28}/>
+              <span>اختيار الصور</span>
+
+              <input
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/webp,image/avif"
+                onChange={e =>
+                  setFiles(Array.from(e.target.files || []))
+                }
+              />
+            </label>
+
+            {files.length > 0 && (
+              <p className="dh-pa-muted">
+                {files.length} صور جاهزة للرفع عند الحفظ
+              </p>
+            )}
+
+            {photos.length > 0 && (
+              <div className="dh-pa-photos">
+                {photos.map(photo => (
+                  <div key={photo.id} className="dh-pa-photo">
+                    <img
+                      src={storageUrl(photo.storage_path)}
+                      alt=""
+                    />
+
+                    {photo.is_cover && (
+                      <span className="dh-pa-cover">الرئيسية</span>
+                    )}
+
+                    <button
+                      type="button"
+                      disabled={photoBusy}
+                      onClick={() => void removePhoto(photo)}
+                      aria-label="حذف الصورة"
+                    >
+                      <Trash2 size={15}/>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <div className="dh-pa-savebar">
+            <button
+              type="submit"
+              className="dh-pa-primary"
+              disabled={saving}
+            >
+              <Save size={18}/>
+              {saving ? 'جارٍ الحفظ...' : 'حفظ العقار'}
+            </button>
+
+            <Link href="/ar/admin/properties">
+              إلغاء
+            </Link>
+          </div>
+
+        </form>
+      </div>
+    </main>
+  );
+}

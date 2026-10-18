@@ -1,0 +1,209 @@
+.dh-auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 18px;
+  background:
+    radial-gradient(circle at 10% 15%, #e8e0d2 0, transparent 38%),
+    linear-gradient(135deg, #f7f5ef, #eeeee8);
+  color: #1d3026;
+}
+
+.dh-auth-card {
+  width: min(100%, 465px);
+  background: #fff;
+  border: 1px solid #e9e5db;
+  border-radius: 20px;
+  padding: 38px;
+  box-shadow: 0 20px 65px rgba(22, 39, 29, .09);
+}
+
+.dh-auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid #f0eee9;
+}
+
+.dh-auth-mark {
+  display: grid;
+  place-items: center;
+  width: 47px;
+  height: 47px;
+  border-radius: 12px;
+  background: #1c3025;
+  color: #d9b77d;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.dh-auth-brand strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.dh-auth-brand small {
+  display: block;
+  margin-top: 5px;
+  font-size: 9px;
+  letter-spacing: .18em;
+  color: #aa8b5b;
+}
+
+.dh-auth-icon {
+  display: grid;
+  place-items: center;
+  width: 53px;
+  height: 53px;
+  margin-top: 28px;
+  border-radius: 13px;
+  background: #f3eee5;
+  color: #b4915b;
+}
+
+.dh-auth-card h1 {
+  font-size: 29px;
+  color: #1d3026;
+  margin: 18px 0 9px;
+  font-weight: 800;
+}
+
+.dh-auth-description {
+  color: #89938b;
+  font-size: 13px;
+  line-height: 1.9;
+  margin-bottom: 26px;
+}
+
+.dh-auth-card form {
+  display: flex;
+  flex-direction: column;
+}
+
+.dh-auth-card form > label {
+  font-size: 12px;
+  font-weight: 700;
+  margin: 15px 0 9px;
+  color: #405246;
+}
+
+.dh-auth-input {
+  height: 51px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e0e5dd;
+  border-radius: 9px;
+  padding: 0 14px;
+  background: #fdfdfb;
+}
+
+.dh-auth-input:focus-within {
+  border-color: #bd9c6d;
+  box-shadow: 0 0 0 3px #bd9c6d1c;
+}
+
+.dh-auth-input svg {
+  flex-shrink: 0;
+  color: #b09a77;
+}
+
+.dh-auth-input input {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #1c3025;
+  font-size: 14px;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.dh-auth-submit {
+  margin-top: 25px;
+  width: 100%;
+  min-height: 51px;
+  background: #1d3327;
+  color: #fff;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: background .2s;
+}
+
+.dh-auth-submit:hover {
+  background: #2d4938;
+}
+
+.dh-auth-submit:disabled {
+  opacity: .7;
+  cursor: wait;
+}
+
+.dh-auth-error {
+  font-size: 12px;
+  color: #a53535;
+  background: #fff2f0;
+  border: 1px solid #f3d8d5;
+  border-radius: 7px;
+  padding: 11px;
+  margin-top: 18px;
+}
+
+.dh-auth-back {
+  display: block;
+  margin-top: 25px;
+  text-align: center;
+  font-size: 12px;
+  color: #957447;
+}
+
+.dh-auth-secure {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: #98a49a;
+  font-size: 11px;
+  margin-top: 24px;
+}
+
+.dh-admin-logout {
+  position: fixed;
+  z-index: 990;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #1c3025;
+  color: #fff;
+  border: 1px solid #c6a571;
+  border-radius: 100px;
+  padding: 11px 18px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 5px 20px #0002;
+}
+
+.dh-admin-logout:hover {
+  background: #304b39;
+}
+
+@media(max-width:550px) {
+  .dh-auth-card {
+    padding: 25px;
+  }
+
+  .dh-auth-card h1 {
+    font-size: 25px;
+  }
+}

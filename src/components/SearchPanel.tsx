@@ -1,0 +1,138 @@
+'use client';
+
+import {useEffect, useState} from 'react';
+import {useLocale, useTranslations} from 'next-intl';
+import {ArrowRight, RotateCcw, Search, SlidersHorizontal} from 'lucide-react';
+import type {PropertyType, Transaction} from '@/lib/properties';
+import {fetchPublicProperties, translate} from '@/lib/supabase/public-properties';
+
+export type Filters = {
+  transaction: 'all' | Transaction;
+  type: 'all' | PropertyType;
+  district: string;
+  minPrice: string;
+  maxPrice: string;
+  bedrooms: string;
+  minArea: string;
+};
+
+const initial: Filters = {transaction: 'all', type: 'all', district: 'all', minPrice: '', maxPrice: '', bedrooms: '', minArea: ''};
+
+export function SearchPanel({onSearch}: {onSearch: (filters: Filters) => void}) {
+  const t = useTranslations('Search');
+  const locale = useLocale();
+
+  const [liveDistricts,setLiveDistricts] =
+    useState<{id:string;name:string}[]>([]);
+
+  useEffect(() => {
+    let active = true;
+
+    fetchPublicProperties()
+      .then(properties => {
+        if(!active) return;
+
+        const unique = new Map<string,string>();
+
+        properties.forEach(property => {
+          if(property.district) {
+            unique.set(
+              property.district.id,
+              translate(property.district.names,locale)
+            );
+          }
+        });
+
+        setLiveDistricts(
+          [...unique].map(([id,name]) => ({
+            id,
+            name
+          }))
+        );
+      })
+      .catch(console.error);
+
+    return () => {
+      active = false;
+    };
+  }, [locale]);
+
+  const [filters, setFilters] = useState<Filters>(initial);
+  const [advanced, setAdvanced] = useState(false);
+  const [invalid, setInvalid] = useState(false);
+
+  const update = (key: keyof Filters, value: string) => {
+    setInvalid(false);
+    setFilters((prev) => ({...prev, [key]: value}));
+  };
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (filters.minPrice && filters.maxPrice && Number(filters.minPrice) > Number(filters.maxPrice)) {
+      setInvalid(true);
+      return;
+    }
+    onSearch(filters);
+    document.getElementById('properties')?.scrollIntoView({behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'});
+  };
+  const reset = () => {setInvalid(false); setFilters(initial); onSearch(initial);};
+
+  return (
+    <div className="search-wrap" id="search">
+      <div className="container">
+        <form className="search-panel" onSubmit={submit}>
+          <div className="search-top">
+            <div className="search-intro"><span className="eyebrow-text">DURRAT PROPERTY FINDER</span><h2>{t('title')}</h2><p>{t('subtitle')}</p></div>
+            <div className="transaction-switch" role="group" aria-label={t('title')}>
+              {(['all', 'rent', 'sale'] as const).map((value) => (
+                <button type="button" key={value} className={filters.transaction === value ? 'transaction active' : 'transaction'}
+                  aria-pressed={filters.transaction === value} onClick={() => update('transaction', value)}>
+                  {t(value === 'all' ? 'all' : value === 'rent' ? 'rent' : 'buy')}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="search-fields">
+            <label className="field"><span>{t('property')}</span>
+              <select value={filters.type} onChange={(e) => update('type', e.target.value)}>
+                <option value="all">{t('allTypes')}</option>
+                {(['apartment', 'villa', 'land', 'building', 'shop'] as const).map((type) => <option value={type} key={type}>{t(type)}</option>)}
+              </select>
+            </label>
+            <label className="field"><span>{t('district')}</span>
+              <select value={filters.district} onChange={(e) => update('district', e.target.value)}>
+                <option value="all">{t('allDistricts')}</option>
+                {liveDistricts.map(district => <option key={district.id} value={district.id}>{district.name}</option>)}
+              </select>
+            </label>
+            <label className="field"><span>{t('minPrice')} <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" /></span>
+              <input type="number" inputMode="numeric" placeholder={t('anyPrice')} min="0" max="1000000000" value={filters.minPrice} onChange={(e) => update('minPrice', e.target.value)} />
+            </label>
+            <label className="field"><span>{t('maxPrice')} <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" /></span>
+              <input type="number" inputMode="numeric" placeholder={t('anyPrice')} min="0" max="1000000000" value={filters.maxPrice} onChange={(e) => update('maxPrice', e.target.value)} />
+            </label>
+            <button className="search-submit" type="submit"><Search size={19} /><span>{t('search')}</span><ArrowRight size={16} className="submit-arrow" /></button>
+          </div>
+          {advanced && <div className="advanced-fields">
+            <label className="field"><span>{t('bedrooms')}</span>
+              <select value={filters.bedrooms} onChange={(e) => update('bedrooms', e.target.value)}>
+                <option value="">{t('anyBeds')}</option>
+                {[1,2,3,4,5,6].map(n => <option value={n} key={n}>{n}+</option>)}
+              </select>
+            </label>
+            <label className="field"><span>{t('areaFrom')}</span>
+              <input type="number" min="0" max="1000000" inputMode="numeric" value={filters.minArea}
+                placeholder="0" onChange={(e) => update('minArea', e.target.value)} />
+            </label>
+          </div>}
+          {invalid && <p className="form-error" role="alert">{t('minPrice')} &gt; {t('maxPrice')}</p>}
+          <div className="search-bottom">
+            <button type="button" className="link-btn" aria-expanded={advanced} onClick={() => setAdvanced((prev) => !prev)}>
+              <SlidersHorizontal size={17} />{advanced ? t('hideAdvanced') : t('advanced')}
+            </button>
+            <button type="button" className="link-btn muted" onClick={reset}><RotateCcw size={15} />{t('clear')}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

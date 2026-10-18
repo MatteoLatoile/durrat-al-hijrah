@@ -1,0 +1,378 @@
+.dh-zone-section {
+  background: #fffefa;
+  border: 1px solid #e7e6df;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.dh-zone-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 24px 27px;
+}
+
+.dh-zone-eyebrow {
+  color: #b59a70;
+  font: 700 10px Arial, sans-serif;
+  letter-spacing: .17em;
+}
+
+.dh-zone-header h2 {
+  font-size: 23px;
+  font-weight: 800;
+  margin: 9px 0 0;
+  color: #24352b;
+}
+
+.dh-zone-total {
+  background: #f3efe7;
+  color: #987d58;
+  border-radius: 30px;
+  padding: 9px 14px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dh-zone-viewport {
+  position: relative;
+  min-height: 480px;
+  overflow: hidden;
+}
+
+.dh-zone-map {
+  width: 100%;
+  height: 480px;
+  background: #eae9e3;
+  z-index: 0;
+}
+
+.dh-zone-notice {
+  padding: 13px 20px;
+  margin: 0;
+  background: #fbfaf7;
+  color: #948672;
+  font-size: 11px;
+}
+
+/* MARQUEUR PAR QUARTIER */
+
+.dh-zone-pin {
+  background: transparent !important;
+  border: none !important;
+  overflow: visible !important;
+}
+
+.dh-zone-pin-content {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: max-content;
+  max-width: 190px;
+  padding: 10px 13px;
+  border-radius: 40px;
+  border: 1px solid #e5e1d9;
+  background: #ffffff;
+  box-shadow: 0 3px 15px rgba(0,0,0,.15);
+  color: #222b25;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 13px;
+  transition: transform .2s, background .2s, box-shadow .2s;
+}
+
+.dh-zone-pin-content::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: calc(50% - 5px);
+  width: 9px;
+  height: 9px;
+  transform: rotate(45deg);
+  background: inherit;
+  border-right: 1px solid #e5e1d9;
+  border-bottom: 1px solid #e5e1d9;
+}
+
+.dh-zone-pin-name {
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dh-zone-pin-count {
+  display: grid;
+  place-items: center;
+  min-width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: #f0ede6;
+  color: #a0845b;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dh-zone-pin:hover .dh-zone-pin-content {
+  transform: translateX(-50%) translateY(-3px);
+  box-shadow: 0 6px 22px rgba(0,0,0,.2);
+}
+
+.dh-zone-pin-active .dh-zone-pin-content {
+  background: #192920;
+  color: #ffffff;
+  border-color: #192920;
+}
+
+.dh-zone-pin-active .dh-zone-pin-count {
+  background: #c7a775;
+  color: #192920;
+}
+
+/* CARROUSEL IMMOBILIER */
+
+.dh-zone-carousel {
+  position: absolute;
+  z-index: 700;
+  bottom: 18px;
+  inset-inline-start: 18px;
+  width: 345px;
+  max-width: calc(100% - 36px);
+  overflow: hidden;
+  border-radius: 15px;
+  background: white;
+  box-shadow: 0 12px 45px rgba(0,0,0,.23);
+  animation: dhCarouselOpen .25s ease-out;
+}
+
+@keyframes dhCarouselOpen {
+  from {
+    opacity: 0;
+    transform: translateY(13px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dh-carousel-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 15px;
+  gap: 10px;
+}
+
+.dh-carousel-district {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: #27372d;
+  font-size: 13px;
+}
+
+.dh-carousel-district svg {
+  color: #bd9d70;
+}
+
+.dh-carousel-district span {
+  background: #f3eee6;
+  color: #a38860;
+  font-size: 10px;
+  padding: 5px 8px;
+  border-radius: 20px;
+}
+
+.dh-carousel-close {
+  display: grid;
+  place-items: center;
+  width: 29px;
+  height: 29px;
+  background: #f3f3ef;
+  border: 0;
+  border-radius: 50%;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.dh-carousel-photo {
+  position: relative;
+  height: 165px;
+  background: #eae8e1;
+}
+
+.dh-carousel-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dh-carousel-no-photo {
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: #878c83;
+  font-size: 13px;
+}
+
+.dh-carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: white;
+  color: #26332a;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px #0002;
+}
+
+.dh-carousel-prev {
+  left: 12px;
+}
+
+.dh-carousel-next {
+  right: 12px;
+}
+
+.dh-carousel-arrow:hover {
+  background: #f0ede7;
+}
+
+.dh-carousel-count {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  padding: 5px 9px;
+  border-radius: 20px;
+  color: white;
+  background: #151b17ba;
+  font: 11px Arial, sans-serif;
+}
+
+.dh-carousel-body {
+  padding: 17px;
+}
+
+.dh-carousel-body h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #26352d;
+  line-height: 1.7;
+  margin: 0 0 6px;
+}
+
+.dh-carousel-price {
+  display: block;
+  color: #ac8856;
+  font-size: 19px;
+  text-align: start;
+  margin-bottom: 12px;
+}
+
+.dh-carousel-specs {
+  display: flex;
+  gap: 16px;
+  color: #7d8b80;
+  font-size: 11px;
+}
+
+.dh-carousel-specs span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.dh-carousel-bottom {
+  border-top: 1px solid #ebece7;
+  margin-top: 15px;
+  padding-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.dh-carousel-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.dh-carousel-dots button {
+  width: 7px;
+  height: 7px;
+  border: none;
+  padding: 0;
+  border-radius: 50%;
+  background: #d5d7d1;
+  cursor: pointer;
+}
+
+.dh-carousel-dots button.active {
+  width: 17px;
+  border-radius: 10px;
+  background: #c5a46e;
+}
+
+.dh-carousel-link {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-weight: 800;
+  font-size: 11px;
+  color: #a18152;
+  white-space: nowrap;
+}
+
+.dh-carousel-link:hover {
+  color: #172b20;
+}
+
+@media(max-width:600px) {
+  .dh-zone-header {
+    padding: 18px;
+  }
+
+  .dh-zone-header h2 {
+    font-size: 19px;
+  }
+
+  .dh-zone-viewport,
+  .dh-zone-map {
+    height: 540px;
+  }
+
+  .dh-zone-carousel {
+    inset-inline-start: 12px;
+    bottom: 12px;
+    width: calc(100% - 24px);
+    max-width: 360px;
+  }
+
+  .dh-carousel-photo {
+    height: 145px;
+  }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .dh-zone-carousel {
+    animation: none;
+  }
+
+  .dh-zone-pin-content {
+    transition: none;
+  }
+}

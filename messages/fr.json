@@ -1,0 +1,91 @@
+{
+    "Nav":  {
+                "properties":  "Biens",
+                "about":  "À propos",
+                "services":  "Nos services",
+                "contact":  "Contact",
+                "language":  "Langue",
+                "menu":  "Menu"
+            },
+    "Hero":  {
+                 "eyebrow":  "Durrat Al Hijrah • Médine",
+                 "headlineOne":  "À chaque nouveau départ,",
+                 "headlineTwo":  "une adresse d\u0027exception.",
+                 "description":  "Des espaces singuliers, une sélection soignée et une recherche immobilière pensée pour vous simplifier la vie.",
+                 "explore":  "Explorer les biens",
+                 "learn":  "Découvrir nos services",
+                 "scroll":  "Défiler pour découvrir",
+                 "sceneLabel":  "L’architecture rencontre l’âme de Médine",
+                 "sceneFoot":  "Visualisation architecturale 3D"
+             },
+    "Search":  {
+                   "rent":  "Location",
+                   "buy":  "Achat",
+                   "title":  "Trouvez votre futur bien",
+                   "subtitle":  "Affinez vos critères, nous nous occupons du reste",
+                   "property":  "Type de bien",
+                   "allTypes":  "Tous les types",
+                   "apartment":  "Appartement",
+                   "villa":  "Villa",
+                   "land":  "Terrain",
+                   "building":  "Immeuble",
+                   "shop":  "Local commercial",
+                   "district":  "Quartier",
+                   "allDistricts":  "Tous les quartiers",
+                   "arid":  "Al-Aridh",
+                   "qurban":  "Qurban",
+                   "awali":  "Al-Awali",
+                   "minPrice":  "Prix minimum",
+                   "maxPrice":  "Prix maximum",
+                   "anyPrice":  "Sans limite",
+                   "bedrooms":  "Chambres",
+                   "anyBeds":  "Toutes",
+                   "search":  "Voir les résultats",
+                   "advanced":  "Filtres avancés",
+                   "hideAdvanced":  "Masquer les filtres",
+                   "clear":  "Réinitialiser",
+                   "areaFrom":  "Surface min. (m²)",
+                   "results":  "Résultats de recherche",
+                   "all":  "Tous"
+               },
+    "Featured":  {
+                     "eyebrow":  "Notre sélection",
+                     "title":  "Des lieux qui donnent envie",
+                     "description":  "Découvrez les biens immobiliers proposés par Durrat Al Hijrah.",
+                     "view":  "Voir le bien",
+                     "perYear":  "/ an",
+                     "area":  "m²",
+                     "rooms":  "ch.",
+                     "baths":  "sdb",
+                     "empty":  "Aucun bien ne correspond. Essayez d\u0027autres filtres.",
+                     "demo":  "",
+                     "close":  "Fermer",
+                     "details":  "Aperçu du bien",
+                     "contact":  "Demander un contact",
+                     "mockNotice":  ""
+                 },
+    "Property":  {
+                     "a":  "Appartement contemporain et lumineux",
+                     "b":  "Villa spacieuse au caractère raffiné",
+                     "c":  "Appartement avec vue dégagée"
+                 },
+    "Value":  {
+                  "eyebrow":  "Le sens du détail",
+                  "title":  "Un grand projet commence en confiance.",
+                  "oneTitle":  "Une recherche intelligente",
+                  "oneText":  "Des filtres précis pour trouver les critères qui comptent vraiment.",
+                  "twoTitle":  "Des détails qui rassurent",
+                  "twoText":  "Des photos claires et des informations structurées pour mieux comparer.",
+                  "threeTitle":  "Un contact simplifié",
+                  "threeText":  "Une prise de contact directe et organisée pour chaque bien."
+              },
+    "Footer":  {
+                   "tagline":  "Votre partenaire pour trouver un bien immobilier à Médine.",
+                   "links":  "Liens utiles",
+                   "prototype":  "",
+                   "copyright":  "Tous droits réservés",
+                   "ctaTitle":  "Votre prochain lieu vous attend.",
+                   "ctaText":  "Démarrez votre recherche et découvrez vos possibilités.",
+                   "ctaButton":  "Trouver un bien"
+               }
+}

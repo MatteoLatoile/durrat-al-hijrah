@@ -1,0 +1,41 @@
+import {setRequestLocale} from 'next-intl/server';
+import {AdminDashboard} from '@/components/AdminV2';
+
+export default async function Page({
+  params
+}: {
+  params: Promise<{locale: string}>
+}) {
+  const {locale} = await params;
+
+  setRequestLocale(locale);
+
+  return (
+    <>
+      <div
+        dir="rtl"
+        style={{
+          background: '#1d3527',
+          padding: '13px 25px',
+          textAlign: 'center'
+        }}
+      >
+        <a
+          href="/ar/admin/properties"
+          style={{
+            display: 'inline-block',
+            padding: '10px 20px',
+            background: '#c5a46e',
+            color: '#182621',
+            borderRadius: '8px',
+            fontWeight: 800,
+            fontSize: '13px'
+          }}
+        >
+          إدارة العقارات — Supabase
+        </a>
+      </div>
+      <AdminDashboard/>
+    </>
+  );
+}

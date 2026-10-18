@@ -1,0 +1,91 @@
+{
+    "Nav":  {
+                "properties":  "Properties",
+                "about":  "About us",
+                "services":  "Our services",
+                "contact":  "Contact",
+                "language":  "Language",
+                "menu":  "Menu"
+            },
+    "Hero":  {
+                 "eyebrow":  "Durrat Al Hijrah • Madinah",
+                 "headlineOne":  "Every new beginning",
+                 "headlineTwo":  "deserves a remarkable place.",
+                 "description":  "Thoughtfully curated spaces and a seamless property search, designed to bring you closer to your next home.",
+                 "explore":  "Explore properties",
+                 "learn":  "Discover our services",
+                 "scroll":  "Scroll to discover",
+                 "sceneLabel":  "Architecture meets the spirit of Madinah",
+                 "sceneFoot":  "3D architectural visualization"
+             },
+    "Search":  {
+                   "rent":  "For rent",
+                   "buy":  "For sale",
+                   "title":  "Find your ideal property",
+                   "subtitle":  "Choose what matters. We\u0027ll handle the details.",
+                   "property":  "Property type",
+                   "allTypes":  "All types",
+                   "apartment":  "Apartment",
+                   "villa":  "Villa",
+                   "land":  "Land",
+                   "building":  "Building",
+                   "shop":  "Commercial",
+                   "district":  "District",
+                   "allDistricts":  "All districts",
+                   "arid":  "Al-Aridh",
+                   "qurban":  "Qurban",
+                   "awali":  "Al-Awali",
+                   "minPrice":  "Min. price",
+                   "maxPrice":  "Max. price",
+                   "anyPrice":  "Any",
+                   "bedrooms":  "Bedrooms",
+                   "anyBeds":  "Any",
+                   "search":  "Show results",
+                   "advanced":  "Advanced filters",
+                   "hideAdvanced":  "Hide filters",
+                   "clear":  "Clear filters",
+                   "areaFrom":  "Min. area (m²)",
+                   "results":  "Search results",
+                   "all":  "All"
+               },
+    "Featured":  {
+                     "eyebrow":  "Featured",
+                     "title":  "Places worth discovering",
+                     "description":  "Explore properties available through Durrat Al Hijrah.",
+                     "view":  "View property",
+                     "perYear":  "/ year",
+                     "area":  "m²",
+                     "rooms":  "beds",
+                     "baths":  "baths",
+                     "empty":  "No matching properties. Try adjusting your filters.",
+                     "demo":  "",
+                     "close":  "Close",
+                     "details":  "Property preview",
+                     "contact":  "Request contact",
+                     "mockNotice":  ""
+                 },
+    "Property":  {
+                     "a":  "Bright contemporary apartment",
+                     "b":  "Generous villa with refined details",
+                     "c":  "Apartment with open views"
+                 },
+    "Value":  {
+                  "eyebrow":  "Every detail matters",
+                  "title":  "Big decisions begin with confidence.",
+                  "oneTitle":  "Smarter searching",
+                  "oneText":  "Precise filters for location, budget, size and the details that matter.",
+                  "twoTitle":  "Clarity in the details",
+                  "twoText":  "Beautiful photography and clear information make comparing easier.",
+                  "threeTitle":  "Seamless connection",
+                  "threeText":  "An organized and direct way to ask about any property."
+              },
+    "Footer":  {
+                   "tagline":  "A thoughtful way to find property in Madinah.",
+                   "links":  "Quick links",
+                   "prototype":  "",
+                   "copyright":  "All rights reserved",
+                   "ctaTitle":  "Your next place is waiting.",
+                   "ctaText":  "Start exploring and discover what\u0027s possible.",
+                   "ctaButton":  "Find a property"
+               }
+}

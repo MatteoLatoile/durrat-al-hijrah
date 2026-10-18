@@ -1,0 +1,838 @@
+'use client';
+
+import {useMemo, useState, type FormEvent} from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import {useLocale} from 'next-intl';
+
+import {
+  LayoutDashboard,
+  Building2,
+  Users,
+  Send,
+  Plus,
+  Search,
+  Trash2,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  ArrowRight,
+  LogOut,
+  X,
+  MapPin,
+  CheckCircle2,
+  Clock3,
+  ShieldAlert,
+  Menu,
+  ChevronDown
+} from 'lucide-react';
+
+import './admin-panel.css';
+
+const translations: Record<string, Record<string, string>> = {
+  ar: {
+    login: '\u062a\u0633\u062c\u064a\u0644 \u062f\u062e\u0648\u0644 \u0627\u0644\u0645\u0634\u0631\u0641',
+    dashboard: '\u0644\u0648\u062d\u0629 \u0627\u0644\u062a\u062d\u0643\u0645',
+    properties: '\u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062a',
+    leads: '\u0627\u0644\u0639\u0645\u0644\u0627\u0621 \u0627\u0644\u0645\u062d\u062a\u0645\u0644\u0648\u0646',
+    telegram: '\u062a\u064a\u0644\u064a\u062c\u0631\u0627\u0645',
+    add: '\u0625\u0636\u0627\u0641\u0629 \u0639\u0642\u0627\u0631',
+    total: '\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062a',
+    published: '\u0645\u0646\u0634\u0648\u0631',
+    draft: '\u0645\u0633\u0648\u062f\u0629',
+    title: '\u0627\u0633\u0645 \u0627\u0644\u0639\u0642\u0627\u0631',
+    district: '\u0627\u0644\u062d\u064a',
+    price: '\u0627\u0644\u0633\u0639\u0631',
+    area: '\u0627\u0644\u0645\u0633\u0627\u062d\u0629',
+    save: '\u062d\u0641\u0638',
+    cancel: '\u0625\u0644\u063a\u0627\u0621',
+    search: '\u0627\u0644\u0628\u062d\u062b',
+    email: '\u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a',
+    password: '\u0643\u0644\u0645\u0629 \u0627\u0644\u0645\u0631\u0648\u0631',
+    signin: '\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644',
+    demo: '\u0645\u0639\u0627\u064a\u0646\u0629 \u0644\u0648\u062d\u0629 \u0627\u0644\u062a\u062d\u0643\u0645',
+    back: '\u0627\u0644\u0639\u0648\u062f\u0629 \u0644\u0644\u0645\u0648\u0642\u0639',
+    welcome: '\u0645\u0631\u062d\u0628\u0627 \u0628\u0643',
+    recent: '\u0623\u062d\u062f\u062b \u0627\u0644\u0639\u0642\u0627\u0631\u0627\u062a',
+    connection: '\u0627\u0644\u0631\u0628\u0637 \u063a\u064a\u0631 \u0645\u0641\u0639\u0644',
+    notice: '\u0646\u0633\u062e\u0629 \u062a\u062c\u0631\u064a\u0628\u064a\u0629 \u0628\u062f\u0648\u0646 \u062d\u0641\u0638 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a'
+  },
+
+  fr: {
+    login: 'Connexion administrateur',
+    dashboard: 'Tableau de bord',
+    properties: 'Biens immobiliers',
+    leads: 'Prospects',
+    telegram: 'Telegram',
+    add: 'Ajouter un bien',
+    total: 'Total des biens',
+    published: 'Publié',
+    draft: 'Brouillon',
+    title: 'Titre du bien',
+    district: 'Quartier',
+    price: 'Prix',
+    area: 'Surface',
+    save: 'Enregistrer',
+    cancel: 'Annuler',
+    search: 'Rechercher',
+    email: 'Adresse e-mail',
+    password: 'Mot de passe',
+    signin: 'Se connecter',
+    demo: 'Voir le dashboard',
+    back: 'Retour au site',
+    welcome: 'Bienvenue',
+    recent: 'Annonces récentes',
+    connection: 'Non connecté',
+    notice: 'Version de démonstration sans sauvegarde des données'
+  },
+
+  en: {
+    login: 'Administrator login',
+    dashboard: 'Dashboard',
+    properties: 'Properties',
+    leads: 'Leads',
+    telegram: 'Telegram',
+    add: 'Add property',
+    total: 'Total properties',
+    published: 'Published',
+    draft: 'Draft',
+    title: 'Property title',
+    district: 'District',
+    price: 'Price',
+    area: 'Area',
+    save: 'Save',
+    cancel: 'Cancel',
+    search: 'Search',
+    email: 'Email address',
+    password: 'Password',
+    signin: 'Sign in',
+    demo: 'Preview dashboard',
+    back: 'Back to website',
+    welcome: 'Welcome',
+    recent: 'Recent properties',
+    connection: 'Not connected',
+    notice: 'Demo version without data storage'
+  },
+
+  ru: {
+    login: '\u0412\u0445\u043e\u0434 \u0430\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u0430',
+    dashboard: '\u041f\u0430\u043d\u0435\u043b\u044c \u0443\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f',
+    properties: '\u041d\u0435\u0434\u0432\u0438\u0436\u0438\u043c\u043e\u0441\u0442\u044c',
+    leads: '\u041a\u043b\u0438\u0435\u043d\u0442\u044b',
+    telegram: 'Telegram',
+    add: '\u0414\u043e\u0431\u0430\u0432\u0438\u0442\u044c \u043e\u0431\u044a\u0435\u043a\u0442',
+    total: '\u0412\u0441\u0435\u0433\u043e \u043e\u0431\u044a\u0435\u043a\u0442\u043e\u0432',
+    published: '\u041e\u043f\u0443\u0431\u043b\u0438\u043a\u043e\u0432\u0430\u043d\u043e',
+    draft: '\u0427\u0435\u0440\u043d\u043e\u0432\u0438\u043a',
+    title: '\u041d\u0430\u0437\u0432\u0430\u043d\u0438\u0435',
+    district: '\u0420\u0430\u0439\u043e\u043d',
+    price: '\u0426\u0435\u043d\u0430',
+    area: '\u041f\u043b\u043e\u0449\u0430\u0434\u044c',
+    save: '\u0421\u043e\u0445\u0440\u0430\u043d\u0438\u0442\u044c',
+    cancel: '\u041e\u0442\u043c\u0435\u043d\u0430',
+    search: '\u041f\u043e\u0438\u0441\u043a',
+    email: 'Email',
+    password: '\u041f\u0430\u0440\u043e\u043b\u044c',
+    signin: '\u0412\u043e\u0439\u0442\u0438',
+    demo: '\u041f\u0440\u043e\u0441\u043c\u043e\u0442\u0440 \u043f\u0430\u043d\u0435\u043b\u0438',
+    back: '\u041d\u0430 \u0441\u0430\u0439\u0442',
+    welcome: '\u0414\u043e\u0431\u0440\u043e \u043f\u043e\u0436\u0430\u043b\u043e\u0432\u0430\u0442\u044c',
+    recent: '\u041d\u043e\u0432\u044b\u0435 \u043e\u0431\u044a\u0435\u043a\u0442\u044b',
+    connection: '\u041d\u0435 \u043f\u043e\u0434\u043a\u043b\u044e\u0447\u0435\u043d\u043e',
+    notice: '\u0414\u0435\u043c\u043e \u0431\u0435\u0437 \u0441\u043e\u0445\u0440\u0430\u043d\u0435\u043d\u0438\u044f'
+  },
+
+  ur: {
+    login: '\u0627\u06cc\u0688\u0645\u0646 \u0644\u0627\u06af \u0627\u0646',
+    dashboard: '\u0627\u06cc\u0688\u0645\u0646 \u067e\u06cc\u0646\u0644',
+    properties: '\u062c\u0627\u0626\u06cc\u062f\u0627\u062f\u06cc\u06ba',
+    leads: '\u0635\u0627\u0631\u0641\u06cc\u0646',
+    telegram: '\u0679\u06cc\u0644\u06cc\u06af\u0631\u0627\u0645',
+    add: '\u062c\u0627\u0626\u06cc\u062f\u0627\u062f \u0634\u0627\u0645\u0644 \u06a9\u0631\u06cc\u06ba',
+    total: '\u06a9\u0644 \u062c\u0627\u0626\u06cc\u062f\u0627\u062f\u06cc\u06ba',
+    published: '\u0634\u0627\u0626\u0639 \u0634\u062f\u06c1',
+    draft: '\u0645\u0633\u0648\u062f\u06c1',
+    title: '\u0639\u0646\u0648\u0627\u0646',
+    district: '\u0639\u0644\u0627\u0642\u06c1',
+    price: '\u0642\u06cc\u0645\u062a',
+    area: '\u0631\u0642\u0628\u06c1',
+    save: '\u0645\u062d\u0641\u0648\u0638 \u06a9\u0631\u06cc\u06ba',
+    cancel: '\u0645\u0646\u0633\u0648\u062e',
+    search: '\u062a\u0644\u0627\u0634',
+    email: '\u0627\u06cc \u0645\u06cc\u0644',
+    password: '\u067e\u0627\u0633 \u0648\u0631\u0688',
+    signin: '\u0644\u0627\u06af \u0627\u0646',
+    demo: '\u0688\u06cc\u0634 \u0628\u0648\u0631\u0688 \u062f\u06cc\u06a9\u06be\u06cc\u06ba',
+    back: '\u0648\u06cc\u0628 \u0633\u0627\u0626\u0679',
+    welcome: '\u062e\u0648\u0634 \u0622\u0645\u062f\u06cc\u062f',
+    recent: '\u0646\u0626\u06cc \u062c\u0627\u0626\u06cc\u062f\u0627\u062f\u06cc\u06ba',
+    connection: '\u062c\u0691\u0627 \u0646\u06c1\u06cc\u06ba',
+    notice: '\u0646\u0645\u0648\u0646\u06c1 \u0648\u0631\u0698\u0646'
+  },
+
+  id: {
+    login: 'Login administrator',
+    dashboard: 'Dasbor',
+    properties: 'Properti',
+    leads: 'Calon pelanggan',
+    telegram: 'Telegram',
+    add: 'Tambah properti',
+    total: 'Total properti',
+    published: 'Diterbitkan',
+    draft: 'Draf',
+    title: 'Judul properti',
+    district: 'Kawasan',
+    price: 'Harga',
+    area: 'Luas',
+    save: 'Simpan',
+    cancel: 'Batal',
+    search: 'Cari',
+    email: 'Alamat email',
+    password: 'Kata sandi',
+    signin: 'Masuk',
+    demo: 'Lihat dasbor',
+    back: 'Kembali ke situs',
+    welcome: 'Selamat datang',
+    recent: 'Properti terbaru',
+    connection: 'Belum terhubung',
+    notice: 'Versi demo tanpa penyimpanan data'
+  }
+};
+
+function useAdmin() {
+  const locale = useLocale();
+  const t = translations[locale] || translations.ar;
+
+  return {locale, t};
+}
+
+function LanguageSwitcher({page}: {page: string}) {
+  const {locale} = useAdmin();
+
+  const langs = [
+    ['ar', 'SA'],
+    ['fr', 'FR'],
+    ['en', 'EN'],
+    ['ru', 'RU'],
+    ['ur', 'PK'],
+    ['id', 'ID']
+  ];
+
+  return (
+    <div className="adm-languages">
+      {langs.map(([code, flag]) => (
+        <Link
+          key={code}
+          href={`/${code}/admin/${page}`}
+          className={locale === code ? 'selected' : ''}
+        >
+          {flag}
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+// ==========================================
+// LOGIN
+// ==========================================
+
+export function AdminLogin() {
+  const {locale, t} = useAdmin();
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState(false);
+
+  return (
+    <main className="adm-login">
+
+      <section className="adm-login-brand">
+        <Image
+          src="/brand-gold.png"
+          alt="Durrat Al Hijrah"
+          width={210}
+          height={210}
+          priority
+        />
+
+        <h1>DURRAT AL HIJRAH</h1>
+        <p>REAL ESTATE MANAGEMENT</p>
+      </section>
+
+      <section className="adm-login-content">
+
+        <div className="adm-login-top">
+          <Link href={`/${locale}`}>
+            <ArrowRight size={18}/>
+            {t.back}
+          </Link>
+
+          <LanguageSwitcher page="login"/>
+        </div>
+
+        <div className="adm-login-card">
+
+          <div className="adm-login-icon">
+            <Lock size={28}/>
+          </div>
+
+          <span className="adm-eyebrow">
+            ADMINISTRATOR ACCESS
+          </span>
+
+          <h2>{t.login}</h2>
+
+          <p className="adm-muted">
+            DURRAT AL HIJRAH
+          </p>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setMessage(true);
+            }}
+          >
+
+            <label>
+              {t.email}
+              <input
+                type="email"
+                placeholder="admin@example.com"
+                autoComplete="username"
+                required
+              />
+            </label>
+
+            <label>
+              {t.password}
+
+              <div className="adm-password">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                  required
+                />
+
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Afficher le mot de passe"
+                >
+                  {showPassword
+                    ? <EyeOff size={18}/>
+                    : <Eye size={18}/>
+                  }
+                </button>
+              </div>
+            </label>
+
+            <button type="submit" className="adm-primary">
+              {t.signin}
+              <ArrowRight size={18}/>
+            </button>
+
+          </form>
+
+          {message && (
+            <p className="adm-warning" role="status">
+              Connexion non activée : authentification à configurer.
+            </p>
+          )}
+
+          <div className="adm-separator">
+            <span>DEMO</span>
+          </div>
+
+          <Link
+            href={`/${locale}/admin/dashboard`}
+            className="adm-secondary"
+          >
+            {t.demo}
+          </Link>
+
+          <p className="adm-warning">
+            <ShieldAlert size={17}/>
+            {t.notice}
+          </p>
+
+        </div>
+      </section>
+    </main>
+  );
+}
+
+// ==========================================
+// DONNEES TEMPORAIRES
+// ==========================================
+
+type Property = {
+  id: number;
+  title: string;
+  district: string;
+  price: number;
+  area: number;
+  published: boolean;
+};
+
+const initialProperties: Property[] = [
+  {
+    id: 1001,
+    title: 'Apartment Al Aridh',
+    district: 'Al Aridh',
+    price: 42000,
+    area: 165,
+    published: true
+  },
+  {
+    id: 1002,
+    title: 'Villa Al Awali',
+    district: 'Al Awali',
+    price: 1850000,
+    area: 420,
+    published: true
+  },
+  {
+    id: 1003,
+    title: 'Apartment Qurban',
+    district: 'Qurban',
+    price: 56000,
+    area: 210,
+    published: false
+  }
+];
+
+type Tab = 'dashboard' | 'properties' | 'leads' | 'telegram';
+
+// ==========================================
+// DASHBOARD
+// ==========================================
+
+export function AdminDashboard() {
+  const {locale, t} = useAdmin();
+
+  const [tab, setTab] = useState<Tab>('dashboard');
+  const [properties, setProperties] = useState(initialProperties);
+  const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+
+  const filtered = useMemo(() => {
+    return properties.filter((property) =>
+      `${property.title} ${property.district}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [properties, search]);
+
+  const published = properties.filter(p => p.published).length;
+  const drafts = properties.length - published;
+
+  function addProperty(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+
+    const data = new FormData(e.currentTarget);
+
+    const title = String(data.get('title') || '').trim();
+    const district = String(data.get('district') || '').trim();
+    const price = Number(data.get('price'));
+    const area = Number(data.get('area'));
+
+    if (
+      !title ||
+      !district ||
+      !Number.isFinite(price) ||
+      !Number.isFinite(area) ||
+      price <= 0 ||
+      area <= 0
+    ) {
+      return;
+    }
+
+    setProperties(previous => [
+      {
+        id: Date.now(),
+        title,
+        district,
+        price,
+        area,
+        published: false
+      },
+      ...previous
+    ]);
+
+    setShowForm(false);
+    setTab('properties');
+  }
+
+  function togglePublished(id: number) {
+    setProperties(previous =>
+      previous.map(property =>
+        property.id === id
+          ? {...property, published: !property.published}
+          : property
+      )
+    );
+  }
+
+  function deleteProperty(id: number) {
+    setProperties(previous =>
+      previous.filter(property => property.id !== id)
+    );
+  }
+
+  const nav = [
+    {id: 'dashboard', label: t.dashboard, icon: LayoutDashboard},
+    {id: 'properties', label: t.properties, icon: Building2},
+    {id: 'leads', label: t.leads, icon: Users},
+    {id: 'telegram', label: t.telegram, icon: Send}
+  ] as const;
+
+  return (
+    <main className="adm-dashboard">
+
+      <aside className="adm-sidebar">
+
+        <Link href={`/${locale}`} className="adm-sidebar-logo">
+          <Image
+            src="/brand-gold.png"
+            width={54}
+            height={54}
+            alt=""
+          />
+
+          <div>
+            <strong>DURRAT</strong>
+            <span>PROPERTY MANAGEMENT</span>
+          </div>
+        </Link>
+
+        <span className="adm-sidebar-label">WORKSPACE</span>
+
+        <nav className="adm-sidebar-nav">
+          {nav.map(item => {
+            const Icon = item.icon;
+
+            return (
+              <button
+                type="button"
+                key={item.id}
+                className={tab === item.id ? 'active' : ''}
+                onClick={() => setTab(item.id)}
+              >
+                <Icon size={20}/>
+                {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="adm-sidebar-bottom">
+          <Link href={`/${locale}/admin/login`}>
+            <LogOut size={17}/>
+            {t.back}
+          </Link>
+        </div>
+
+      </aside>
+
+      <div className="adm-workspace">
+
+        <header className="adm-topbar">
+
+          <div className="adm-breadcrumb">
+            DURRAT
+            <span>/</span>
+            {t[tab]}
+          </div>
+
+          <LanguageSwitcher page="dashboard"/>
+
+        </header>
+
+        <div className="adm-main">
+
+          <div className="adm-page-heading">
+
+            <div>
+              <span className="adm-eyebrow">
+                DURRAT AL HIJRAH / ADMIN
+              </span>
+
+              <h1>
+                {tab === 'dashboard' ? t.welcome : t[tab]}
+              </h1>
+
+              <p>{t.notice}</p>
+            </div>
+
+            <button
+              type="button"
+              className="adm-primary"
+              onClick={() => setShowForm(true)}
+            >
+              <Plus size={19}/>
+              {t.add}
+            </button>
+
+          </div>
+
+          {tab === 'dashboard' && (
+            <div className="adm-stats">
+
+              <div className="adm-stat">
+                <span>{t.total}</span>
+                <strong>{properties.length}</strong>
+                <Building2 size={24}/>
+              </div>
+
+              <div className="adm-stat">
+                <span>{t.published}</span>
+                <strong>{published}</strong>
+                <CheckCircle2 size={24}/>
+              </div>
+
+              <div className="adm-stat">
+                <span>{t.draft}</span>
+                <strong>{drafts}</strong>
+                <Clock3 size={24}/>
+              </div>
+
+              <div className="adm-stat">
+                <span>{t.leads}</span>
+                <strong>0</strong>
+                <Users size={24}/>
+              </div>
+
+            </div>
+          )}
+
+          {(tab === 'dashboard' || tab === 'properties') && (
+            <section className="adm-panel">
+
+              <div className="adm-panel-header">
+
+                <h2>
+                  {tab === 'dashboard'
+                    ? t.recent
+                    : t.properties}
+                </h2>
+
+                <div className="adm-search">
+                  <Search size={18}/>
+
+                  <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder={t.search}
+                  />
+                </div>
+
+              </div>
+
+              <div className="adm-table-scroll">
+                <table className="adm-table">
+
+                  <thead>
+                    <tr>
+                      <th>{t.title}</th>
+                      <th>{t.district}</th>
+                      <th>{t.price}</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {filtered.map(property => (
+                      <tr key={property.id}>
+
+                        <td>
+                          <div className="adm-property-cell">
+                            <div className="adm-property-icon">
+                              <Building2 size={19}/>
+                            </div>
+
+                            <div>
+                              <strong>{property.title}</strong>
+                              <small>#{property.id}</small>
+                            </div>
+                          </div>
+                        </td>
+
+                        <td>
+                          <MapPin size={14}/>
+                          {property.district}
+                        </td>
+
+                        <td>
+                          {property.price.toLocaleString()} SAR
+                        </td>
+
+                        <td>
+                          <span className={
+                            property.published
+                              ? 'adm-status published'
+                              : 'adm-status'
+                          }>
+                            {property.published
+                              ? t.published
+                              : t.draft}
+                          </span>
+                        </td>
+
+                        <td>
+                          <div className="adm-table-actions">
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                togglePublished(property.id)
+                              }
+                              aria-label="Toggle publication"
+                            >
+                              {property.published
+                                ? <EyeOff size={18}/>
+                                : <Eye size={18}/>}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() =>
+                                deleteProperty(property.id)
+                              }
+                              aria-label="Delete property"
+                            >
+                              <Trash2 size={18}/>
+                            </button>
+
+                          </div>
+                        </td>
+
+                      </tr>
+                    ))}
+                  </tbody>
+
+                </table>
+
+                {filtered.length === 0 && (
+                  <p className="adm-empty">No properties found</p>
+                )}
+              </div>
+
+            </section>
+          )}
+
+          {tab === 'leads' && (
+            <section className="adm-placeholder">
+              <Users size={42}/>
+              <h2>{t.leads}</h2>
+              <p>{t.connection}</p>
+            </section>
+          )}
+
+          {tab === 'telegram' && (
+            <section className="adm-placeholder">
+              <Send size={42}/>
+              <h2>Telegram Bot</h2>
+              <p>{t.connection}</p>
+            </section>
+          )}
+
+        </div>
+      </div>
+
+      {showForm && (
+        <div className="adm-modal-overlay">
+
+          <section
+            className="adm-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="adm-modal-title"
+          >
+
+            <div className="adm-modal-header">
+              <h2 id="adm-modal-title">{t.add}</h2>
+
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                aria-label="Close"
+              >
+                <X size={22}/>
+              </button>
+            </div>
+
+            <form onSubmit={addProperty}>
+
+              <label>
+                {t.title}
+                <input
+                  name="title"
+                  required
+                  maxLength={120}
+                  placeholder="Apartment..."
+                />
+              </label>
+
+              <label>
+                {t.district}
+                <input
+                  name="district"
+                  required
+                  maxLength={80}
+                  placeholder="Al Aridh"
+                />
+              </label>
+
+              <div className="adm-form-grid">
+
+                <label>
+                  {t.price} (SAR)
+                  <input
+                    name="price"
+                    type="number"
+                    min="1"
+                    required
+                  />
+                </label>
+
+                <label>
+                  {t.area} (m²)
+                  <input
+                    name="area"
+                    type="number"
+                    min="1"
+                    required
+                  />
+                </label>
+
+              </div>
+
+              <div className="adm-modal-actions">
+
+                <button
+                  type="button"
+                  className="adm-secondary"
+                  onClick={() => setShowForm(false)}
+                >
+                  {t.cancel}
+                </button>
+
+                <button type="submit" className="adm-primary">
+                  <Plus size={17}/>
+                  {t.save}
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
+        </div>
+      )}
+
+    </main>
+  );
+}

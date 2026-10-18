@@ -1,0 +1,36 @@
+'use client';
+
+import {useState} from 'react';
+import {useLocale, useTranslations} from 'next-intl';
+import {ArrowUpLeft, BedDouble, Bath, Expand, MapPin, MoveUpRight} from 'lucide-react';
+import type {Property} from '@/lib/properties';
+
+export function PropertyCard({item, onOpen}: {item: Property; onOpen: (item: Property) => void}) {
+  const t = useTranslations('Featured');
+  const p = useTranslations('Property');
+  const s = useTranslations('Search');
+  const locale = useLocale();
+  const [imageFailed, setImageFailed] = useState(false);
+  const price = new Intl.NumberFormat(locale, {maximumFractionDigits: 0}).format(item.price);
+  return (
+    <article className="property-card">
+      <button type="button" className={`property-visual ${item.imageClass}`} onClick={() => window.location.assign(`/${locale}/properties/${item.id}`)} aria-label={`${t('view')}: ${p(item.titleKey)}`}>
+        {!imageFailed && <img src={item.imageUrl} alt="" loading="lazy" onError={() => setImageFailed(true)} />}
+        <span className="image-sketch" aria-hidden="true"><i/><i/><i/><i/><i/></span>
+        <span className="property-tag">{s(item.transaction === 'rent' ? 'rent' : 'buy')}</span>
+        <span className="demo-badge">{t('demo')}</span>
+        <span className="image-expand"><Expand size={18} /></span>
+      </button>
+      <div className="property-body">
+        <div className="property-location"><MapPin size={14}/>{s(item.district)} Â· {locale === 'ar' || locale === 'ur' ? 'Ø§Ù„Ù…Ø¯ÙŠÙ†Ø© Ø§Ù„Ù…Ù†ÙˆØ±Ø©' : 'Madinah'}</div>
+        <h3>{p(item.titleKey)}</h3>
+        <div className="property-specs"><span><MoveUpRight size={15}/>{item.area} {t('area')}</span><span><BedDouble size={16}/>{item.beds} {t('rooms')}</span><span><Bath size={16}/>{item.baths} {t('baths')}</span></div>
+        <div className="property-bottom">
+          <div className="price"><b><span dir="ltr">{price}</span> <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" /></b>{item.transaction === 'rent' && <span>{t('perYear')}</span>}</div>
+          <button type="button" onClick={() => window.location.assign(`/${locale}/properties/${item.id}`)} className="open-property" aria-label={`${t('view')}: ${p(item.titleKey)}`}><ArrowUpLeft size={20}/></button>
+        </div>
+      </div>
+    </article>
+  );
+}
+

@@ -1,0 +1,650 @@
+'use client';
+
+import {useMemo, useState} from 'react';
+import Link from 'next/link';
+import {useLocale, useTranslations} from 'next-intl';
+import {
+  ArrowUpLeft, ArrowRight, Search, SlidersHorizontal, RotateCcw,
+  MapPin, BedDouble, Bath, Maximize2, Building2, ShieldCheck,
+  CheckCircle2, ChevronLeft, ChevronRight, Phone, MessageCircle,
+  Mail, Home, KeyRound, Gem, HeartHandshake, ArrowDownUp
+} from 'lucide-react';
+import {Header} from './Header';
+import {sampleProperties} from '@/lib/properties';
+import {PropertyResultsMap} from './PropertyResultsMap';
+import './interior.css';
+
+type Lang = 'ar' | 'fr' | 'en' | 'ru' | 'ur' | 'id';
+
+const copy = {
+  ar: {
+    collection:'مجموعة العقارات', listings:'اكتشف عقارك القادم',
+    listingDesc:'تصفح العقارات المتاحة واستخدم البحث المتقدم للوصول إلى الخيار المناسب.',
+    demo:'عقارات تجريبية', demoNote:'هذه عقارات تجريبية للعرض فقط وليست عروضاً حقيقية.',
+    filters:'تصفية النتائج', results:'نتائج البحث', all:'الكل',
+    transaction:'نوع العملية', propertyType:'نوع العقار', district:'الحي',
+    minPrice:'السعر من', maxPrice:'السعر إلى', minArea:'المساحة من',
+    maxArea:'المساحة إلى', beds:'غرف النوم', baths:'دورات المياه',
+    reset:'مسح الفلاتر', sort:'ترتيب حسب', newest:'الأحدث',
+    priceLow:'السعر: الأقل أولاً', priceHigh:'السعر: الأعلى أولاً',
+    noResults:'لا توجد عقارات مطابقة لبحثك', view:'عرض التفاصيل',
+    back:'العودة للعقارات', specs:'مواصفات العقار', description:'وصف العقار',
+    gallery:'معرض الصور', location:'الموقع', related:'عقارات مشابهة',
+    contactAgent:'تواصل بشأن هذا العقار', perYear:'سنوياً',
+    request:'طلب معلومات', name:'الاسم الكامل', phone:'رقم الواتساب',
+    email:'البريد الإلكتروني (اختياري)', consent:'أوافق على استخدام بياناتي للتواصل بشأن طلبي.',
+    continue:'متابعة إلى واتساب', frontendOnly:'نموذج تجريبي: لن يتم حفظ البيانات أو فتح واتساب حتى يتم ربط قاعدة البيانات.',
+    submitted:'تمت معاينة النموذج. الحفظ والإرسال غير مفعّلين حالياً.',
+    about:'من نحن', aboutTitle:'نحو تجربة عقارية أكثر تميزاً',
+    aboutText:'درة الهجرة للعقارات منصة عقارية تهدف إلى تسهيل استكشاف العقارات في المدينة المنورة وتقديم المعلومات بطريقة واضحة ومنظمة.',
+    value1:'بحث متقدم', value1Text:'خيارات تصفية تساعدك في الوصول إلى العقار المناسب.',
+    value2:'تفاصيل واضحة', value2Text:'صور ومواصفات مفصلة لكل عرض عقاري.',
+    value3:'تواصل منظم', value3Text:'طلب معلومات مرتبط مباشرة بالعقار الذي يهمك.',
+    contact:'تواصل معنا', contactTitle:'نحن هنا لمساعدتك',
+    contactText:'هل لديك استفسار بشأن أحد العقارات؟ يمكنك معاينة نموذج التواصل أدناه.',
+    formTitle:'بيانات التواصل', city:'المدينة المنورة',
+    sale:'للبيع', rent:'للإيجار', area:'م²',
+    detailText:'عقار معروض ضمن النسخة التجريبية للموقع. ستظهر هنا التفاصيل الكاملة التي يضيفها المكتب، بما فيها التشطيبات والمميزات والخدمات القريبة.',
+    unavailable:'العقار غير موجود', footer:'نسخة تجريبية — لا يتم إرسال أي بيانات.',
+    required:'جميع الحقول المطلوبة يجب تعبئتها.', home:'الرئيسية'
+  },
+  fr: {
+    collection:'Notre collection', listings:'Trouvez votre prochain bien',
+    listingDesc:'Explorez les propriétés et affinez votre recherche grâce à nos filtres avancés.',
+    demo:'Biens de démonstration', demoNote:'Ces annonces sont fictives et ne correspondent pas à des offres réelles.',
+    filters:'Affiner la recherche', results:'Résultats', all:'Tous',
+    transaction:'Transaction', propertyType:'Type de bien', district:'Quartier',
+    minPrice:'Prix minimum', maxPrice:'Prix maximum', minArea:'Surface minimum',
+    maxArea:'Surface maximum', beds:'Chambres', baths:'Salles de bain',
+    reset:'Réinitialiser', sort:'Trier par', newest:'Plus récents',
+    priceLow:'Prix croissant', priceHigh:'Prix décroissant',
+    noResults:'Aucun bien ne correspond à vos critères', view:'Voir le bien',
+    back:'Retour aux biens', specs:'Caractéristiques', description:'Description',
+    gallery:'Galerie photos', location:'Localisation', related:'Biens similaires',
+    contactAgent:'Contacter pour ce bien', perYear:'par an',
+    request:'Demande de renseignements', name:'Nom complet', phone:'Numéro WhatsApp',
+    email:'E-mail (facultatif)', consent:"J'accepte l'utilisation de mes coordonnées pour répondre à ma demande.",
+    continue:'Continuer vers WhatsApp', frontendOnly:"Aperçu uniquement : aucune donnée n'est enregistrée et WhatsApp ne s'ouvrira pas avant la connexion au backend.",
+    submitted:"Formulaire prévisualisé. L'enregistrement et l'envoi ne sont pas encore activés.",
+    about:'À propos', aboutTitle:"Une autre vision de l'immobilier",
+    aboutText:"Durrat Al Hijrah souhaite simplifier la découverte des biens immobiliers à Médine grâce à une présentation claire et une expérience de recherche soignée.",
+    value1:'Recherche avancée', value1Text:'Des filtres précis pour trouver le bien qui vous correspond.',
+    value2:'Informations détaillées', value2Text:'Photographies et caractéristiques pour mieux comparer.',
+    value3:'Contact organisé', value3Text:'Une demande associée au bien qui vous intéresse.',
+    contact:'Contact', contactTitle:'Parlons de votre projet',
+    contactText:"Une question concernant une propriété ? Découvrez notre formulaire de contact.",
+    formTitle:'Vos coordonnées', city:'Médine',
+    sale:'À vendre', rent:'À louer', area:'m²',
+    detailText:"Bien présenté à titre de démonstration. La description réelle comprendra les finitions, équipements et commodités renseignés par l'agence.",
+    unavailable:'Bien introuvable', footer:"Prototype : aucune donnée personnelle n'est transmise.",
+    required:'Veuillez compléter les champs obligatoires.', home:'Accueil'
+  },
+  en: {
+    collection:'Our collection', listings:'Find your next property',
+    listingDesc:'Browse our properties and refine your search using advanced filters.',
+    demo:'Demo properties', demoNote:'These are fictional listings and are not actual offers.',
+    filters:'Refine your search', results:'Results', all:'All',
+    transaction:'Transaction', propertyType:'Property type', district:'District',
+    minPrice:'Minimum price', maxPrice:'Maximum price', minArea:'Minimum area',
+    maxArea:'Maximum area', beds:'Bedrooms', baths:'Bathrooms',
+    reset:'Reset filters', sort:'Sort by', newest:'Newest',
+    priceLow:'Price: low to high', priceHigh:'Price: high to low',
+    noResults:'No properties match your filters', view:'View property',
+    back:'Back to properties', specs:'Property details', description:'Description',
+    gallery:'Photo gallery', location:'Location', related:'Similar properties',
+    contactAgent:'Enquire about this property', perYear:'per year',
+    request:'Property enquiry', name:'Full name', phone:'WhatsApp number',
+    email:'Email (optional)', consent:'I agree to the use of my details to respond to my enquiry.',
+    continue:'Continue to WhatsApp', frontendOnly:'Preview only: no information is stored and WhatsApp is not opened until the backend is connected.',
+    submitted:'Form preview complete. Saving and sending are not enabled yet.',
+    about:'About us', aboutTitle:'A better way to discover property',
+    aboutText:'Durrat Al Hijrah aims to make property discovery in Madinah easier through clear information and a refined browsing experience.',
+    value1:'Advanced search', value1Text:'Precise filters for finding a suitable property.',
+    value2:'Clear information', value2Text:'Photos and specifications for easy comparison.',
+    value3:'Organised contact', value3Text:'Enquiries linked to the property you are interested in.',
+    contact:'Contact', contactTitle:"Let's discuss your plans",
+    contactText:'Have a question about a property? Preview the contact form below.',
+    formTitle:'Contact details', city:'Madinah',
+    sale:'For sale', rent:'For rent', area:'m²',
+    detailText:'This is a demonstration listing. The actual description will include property finishes, features and nearby amenities entered by the agency.',
+    unavailable:'Property not found', footer:'Prototype — no personal data is transmitted.',
+    required:'Please fill in the required fields.', home:'Home'
+  },
+  ru: {
+    collection:'Наша коллекция', listings:'Найдите свою недвижимость',
+    listingDesc:'Изучайте предложения и уточняйте поиск с помощью расширенных фильтров.',
+    demo:'Демонстрационные объекты', demoNote:'Это вымышленные объявления, а не реальные предложения.',
+    filters:'Фильтры поиска', results:'Результаты', all:'Все',
+    transaction:'Сделка', propertyType:'Тип недвижимости', district:'Район',
+    minPrice:'Цена от', maxPrice:'Цена до', minArea:'Площадь от',
+    maxArea:'Площадь до', beds:'Спальни', baths:'Ванные комнаты',
+    reset:'Сбросить', sort:'Сортировка', newest:'Новые',
+    priceLow:'Сначала дешевле', priceHigh:'Сначала дороже',
+    noResults:'По вашему запросу ничего не найдено', view:'Подробнее',
+    back:'К списку объектов', specs:'Характеристики', description:'Описание',
+    gallery:'Фотогалерея', location:'Расположение', related:'Похожие объекты',
+    contactAgent:'Узнать об объекте', perYear:'в год',
+    request:'Запрос информации', name:'Полное имя', phone:'Номер WhatsApp',
+    email:'Эл. почта (необязательно)', consent:'Я согласен на использование моих данных для ответа на запрос.',
+    continue:'Перейти в WhatsApp', frontendOnly:'Демонстрация: данные не сохраняются, WhatsApp пока не открывается.',
+    submitted:'Форма проверена. Сохранение и отправка пока отключены.',
+    about:'О нас', aboutTitle:'Новый взгляд на недвижимость',
+    aboutText:'Durrat Al Hijrah помогает удобно изучать недвижимость в Медине благодаря понятной информации и современному поиску.',
+    value1:'Удобный поиск', value1Text:'Точные фильтры для выбора недвижимости.',
+    value2:'Подробные сведения', value2Text:'Фото и характеристики для сравнения.',
+    value3:'Удобная связь', value3Text:'Запросы, связанные с выбранным объектом.',
+    contact:'Контакты', contactTitle:'Обсудим ваши планы',
+    contactText:'Есть вопрос о недвижимости? Ознакомьтесь с формой связи.',
+    formTitle:'Контактные данные', city:'Медина',
+    sale:'Продажа', rent:'Аренда', area:'м²',
+    detailText:'Демонстрационное объявление. Здесь будет описание отделки, особенностей и инфраструктуры объекта.',
+    unavailable:'Объект не найден', footer:'Демонстрация — личные данные не передаются.',
+    required:'Заполните обязательные поля.', home:'Главная'
+  },
+  ur: {
+    collection:'ہماری پراپرٹیز', listings:'اپنی اگلی پراپرٹی تلاش کریں',
+    listingDesc:'جدید فلٹرز کے ذریعے اپنی پسند کی جائیداد تلاش کریں۔',
+    demo:'نمونہ پراپرٹیز', demoNote:'یہ صرف نمونہ اشتہارات ہیں، حقیقی پیشکشیں نہیں۔',
+    filters:'تلاش کے فلٹرز', results:'نتائج', all:'تمام',
+    transaction:'لین دین', propertyType:'جائیداد کی قسم', district:'علاقہ',
+    minPrice:'کم از کم قیمت', maxPrice:'زیادہ سے زیادہ قیمت',
+    minArea:'کم از کم رقبہ', maxArea:'زیادہ سے زیادہ رقبہ',
+    beds:'بیڈ روم', baths:'باتھ روم', reset:'فلٹر صاف کریں',
+    sort:'ترتیب', newest:'تازہ ترین', priceLow:'کم قیمت پہلے',
+    priceHigh:'زیادہ قیمت پہلے', noResults:'کوئی جائیداد نہیں ملی',
+    view:'تفصیلات دیکھیں', back:'پراپرٹیز پر واپس',
+    specs:'خصوصیات', description:'تفصیل', gallery:'تصاویر',
+    location:'مقام', related:'ملتی جلتی پراپرٹیز',
+    contactAgent:'اس پراپرٹی کے بارے میں رابطہ', perYear:'سالانہ',
+    request:'معلومات کی درخواست', name:'مکمل نام',
+    phone:'واٹس ایپ نمبر', email:'ای میل (اختیاری)',
+    consent:'میں اپنی درخواست کے جواب کے لیے اپنی معلومات کے استعمال سے اتفاق کرتا ہوں۔',
+    continue:'واٹس ایپ پر جائیں',
+    frontendOnly:'یہ صرف نمونہ ہے۔ معلومات محفوظ نہیں ہوں گی اور واٹس ایپ ابھی نہیں کھلے گا۔',
+    submitted:'فارم کا نمونہ مکمل ہوا۔ محفوظ کرنا اور بھیجنا ابھی بند ہے۔',
+    about:'ہمارے بارے میں', aboutTitle:'جائیداد کی تلاش کا نیا انداز',
+    aboutText:'درۃ الہجرہ مدینہ منورہ میں جائیداد کی تلاش آسان بنانے کے لیے واضح معلومات اور جدید سہولتیں فراہم کرنا چاہتا ہے۔',
+    value1:'جدید تلاش', value1Text:'مناسب جائیداد تلاش کرنے کے لیے فلٹرز۔',
+    value2:'مکمل معلومات', value2Text:'موازنہ کرنے کے لیے تصاویر اور تفصیلات۔',
+    value3:'آسان رابطہ', value3Text:'ہر جائیداد سے متعلق الگ درخواست۔',
+    contact:'رابطہ', contactTitle:'ہم سے رابطہ کریں',
+    contactText:'کسی جائیداد کے بارے میں سوال ہے؟ رابطہ فارم دیکھیں۔',
+    formTitle:'رابطے کی معلومات', city:'مدینہ منورہ',
+    sale:'برائے فروخت', rent:'کرائے کے لیے', area:'مربع میٹر',
+    detailText:'یہ ایک نمونہ اشتہار ہے۔ اصل تفصیلات میں سہولیات اور جائیداد کی خصوصیات شامل ہوں گی۔',
+    unavailable:'جائیداد نہیں ملی', footer:'نمونہ ویب سائٹ — کوئی ذاتی معلومات نہیں بھیجی جاتیں۔',
+    required:'ضروری خانے پُر کریں۔', home:'صفحہ اول'
+  },
+  id: {
+    collection:'Koleksi properti', listings:'Temukan properti impian Anda',
+    listingDesc:'Jelajahi properti dan gunakan filter lengkap untuk menemukan pilihan tepat.',
+    demo:'Properti contoh', demoNote:'Iklan ini hanya contoh, bukan penawaran sebenarnya.',
+    filters:'Filter pencarian', results:'Hasil pencarian', all:'Semua',
+    transaction:'Transaksi', propertyType:'Jenis properti', district:'Kawasan',
+    minPrice:'Harga minimum', maxPrice:'Harga maksimum',
+    minArea:'Luas minimum', maxArea:'Luas maksimum',
+    beds:'Kamar tidur', baths:'Kamar mandi',
+    reset:'Atur ulang', sort:'Urutkan', newest:'Terbaru',
+    priceLow:'Harga terendah', priceHigh:'Harga tertinggi',
+    noResults:'Tidak ada properti yang sesuai', view:'Lihat detail',
+    back:'Kembali ke properti', specs:'Spesifikasi', description:'Deskripsi',
+    gallery:'Galeri foto', location:'Lokasi', related:'Properti serupa',
+    contactAgent:'Tanyakan properti ini', perYear:'per tahun',
+    request:'Permintaan informasi', name:'Nama lengkap',
+    phone:'Nomor WhatsApp', email:'Email (opsional)',
+    consent:'Saya setuju data saya digunakan untuk menjawab pertanyaan saya.',
+    continue:'Lanjutkan ke WhatsApp',
+    frontendOnly:'Hanya pratinjau: data tidak disimpan dan WhatsApp belum dibuka sampai backend terhubung.',
+    submitted:'Pratinjau formulir selesai. Penyimpanan dan pengiriman belum aktif.',
+    about:'Tentang kami', aboutTitle:'Cara baru menjelajahi properti',
+    aboutText:'Durrat Al Hijrah bertujuan mempermudah pencarian properti di Madinah dengan informasi jelas dan pengalaman modern.',
+    value1:'Pencarian lengkap', value1Text:'Filter yang tepat untuk menemukan properti terbaik.',
+    value2:'Informasi detail', value2Text:'Foto dan spesifikasi untuk membantu membandingkan.',
+    value3:'Kontak terorganisir', value3Text:'Pertanyaan terkait properti pilihan Anda.',
+    contact:'Kontak', contactTitle:'Mari diskusikan kebutuhan Anda',
+    contactText:'Punya pertanyaan mengenai properti? Lihat formulir kontak.',
+    formTitle:'Informasi kontak', city:'Madinah',
+    sale:'Dijual', rent:'Disewakan', area:'m²',
+    detailText:'Ini adalah iklan contoh. Deskripsi asli akan mencakup fasilitas dan detail yang dimasukkan agen.',
+    unavailable:'Properti tidak ditemukan',
+    footer:'Prototipe — tidak ada data pribadi yang dikirim.',
+    required:'Lengkapi kolom wajib.', home:'Beranda'
+  }
+};
+
+type PropertyKind = 'apartment' | 'villa' | 'land' | 'building' | 'shop';
+type District = 'arid' | 'qurban' | 'awali';
+type Item = {
+  id:number;
+  type:PropertyKind;
+  transaction:'rent'|'sale';
+  district:District;
+  price:number;
+  area:number;
+  beds:number;
+  baths:number;
+  photos:string[];
+  titleKey?:'a'|'b'|'c';
+};
+
+const images = [
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1400&q=85',
+  'https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1400&q=85'
+];
+
+const items:Item[] = [
+  ...sampleProperties.map((p, i) => ({
+    id:p.id, type:p.type, transaction:p.transaction,
+    district:p.district, price:p.price, area:p.area,
+    beds:p.beds, baths:p.baths, titleKey:p.titleKey,
+    photos:[p.imageUrl, images[(i+3)%images.length], images[(i+4)%images.length]]
+  })),
+  {id:1004,type:'land',transaction:'sale',district:'awali',price:790000,
+   area:600,beds:0,baths:0,photos:[images[3],images[4]]},
+  {id:1005,type:'shop',transaction:'rent',district:'qurban',price:68000,
+   area:130,beds:0,baths:1,photos:[images[4],images[5]]},
+  {id:1006,type:'building',transaction:'sale',district:'arid',price:3200000,
+   area:850,beds:0,baths:0,photos:[images[5],images[1]]}
+];
+
+const kinds:PropertyKind[] = ['apartment','villa','land','building','shop'];
+const districts:District[] = ['arid','qurban','awali'];
+
+function usePageText() {
+  const locale = useLocale() as Lang;
+  return {locale, t:copy[locale] || copy.ar};
+}
+
+function money(n:number, locale:string) {
+  return new Intl.NumberFormat(locale).format(n);
+}
+
+function PageShell({title,subtitle,eyebrow,children}:{
+  title:string;subtitle:string;eyebrow:string;children:React.ReactNode
+}) {
+  const {locale,t} = usePageText();
+  return <div className="site-shell interior-shell">
+    <section className="interior-cover">
+      <Header/>
+      <div className="container interior-cover-content">
+        <div className="interior-kicker"><span/>{eyebrow}</div>
+        <h1>{title}</h1>
+        <p>{subtitle}</p>
+        <div className="interior-breadcrumb">
+          <Link href={`/${locale}`}>{t.home}</Link>
+          <ChevronLeft size={15}/>
+          <span>{title}</span>
+        </div>
+      </div>
+      <div className="interior-cover-symbol" aria-hidden="true"/>
+    </section>
+    <main>{children}</main>
+    <footer className="interior-footer">
+      <div className="container interior-footer-inner">
+        <div className="interior-footer-brand">
+          <img src="/brand-gold.png" alt="" width="42" height="42"/>
+          <span>درة الهجرة للعقارات</span>
+        </div>
+        <nav>
+          <Link href={`/${locale}`}>{t.home}</Link>
+          <Link href={`/${locale}/properties`}>{t.listings}</Link>
+          <Link href={`/${locale}/about`}>{t.about}</Link>
+          <Link href={`/${locale}/contact`}>{t.contact}</Link><Link className="adm-footer-link" href={`/${locale}/admin/login`}>Admin</Link>
+        </nav>
+      </div>
+      <div className="container interior-footer-base">© 2026 DURRAT AL HIJRAH · {t.footer}</div>
+    </footer>
+  </div>;
+}
+
+function ListingCard({item}: {item:Item}) {
+  const {locale,t} = usePageText();
+  const s = useTranslations('Search');
+  const p = useTranslations('Property');
+  const title = item.titleKey ? p(item.titleKey) : `${s(item.type)} · ${s(item.district)}`;
+
+  return <article className="interior-property-card">
+    <Link href={`/${locale}/properties/${item.id}`} className="interior-card-image">
+      <img src={item.photos[0]} alt={title} loading="lazy"/>
+      <span className="interior-card-badge">{item.transaction==='rent'?t.rent:t.sale}</span>
+      <span className="interior-card-arrow"><ArrowUpLeft size={19}/></span>
+    </Link>
+    <div className="interior-card-body">
+      <div className="interior-card-location"><MapPin size={14}/>{s(item.district)} · {t.city}</div>
+      <Link href={`/${locale}/properties/${item.id}`} className="interior-card-title">{title}</Link>
+      <div className="interior-card-specs">
+        <span><Maximize2 size={15}/>{item.area} {t.area}</span>
+        {item.beds>0 && <span><BedDouble size={15}/>{item.beds}</span>}
+        {item.baths>0 && <span><Bath size={15}/>{item.baths}</span>}
+      </div>
+      <div className="interior-card-bottom">
+        <strong dir="ltr">{money(item.price,locale)} <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" /></strong>
+        <Link href={`/${locale}/properties/${item.id}`} aria-label={t.view}>
+          <ArrowUpLeft size={19}/>
+        </Link>
+      </div>
+    </div>
+  </article>;
+}
+
+export function ListingsPage() {
+  const {locale,t} = usePageText();
+  const s = useTranslations('Search');
+  const p = useTranslations('Property');
+  const [transaction,setTransaction] = useState('all');
+  const [kind,setKind] = useState('all');
+  const [district,setDistrict] = useState('all');
+  const [minPrice,setMinPrice] = useState('');
+  const [maxPrice,setMaxPrice] = useState('');
+  const [minArea,setMinArea] = useState('');
+  const [maxArea,setMaxArea] = useState('');
+  const [beds,setBeds] = useState('');
+  const [baths,setBaths] = useState('');
+  const [sort,setSort] = useState('newest');
+  const [showFilters,setShowFilters] = useState(true);
+
+  const reset = () => {
+    setTransaction('all');setKind('all');setDistrict('all');
+    setMinPrice('');setMaxPrice('');setMinArea('');setMaxArea('');
+    setBeds('');setBaths('');setSort('newest');
+  };
+
+  const results = useMemo(() => {
+    const filtered = items.filter(p => {
+      if(transaction!=='all' && p.transaction!==transaction) return false;
+      if(kind!=='all' && p.type!==kind) return false;
+      if(district!=='all' && p.district!==district) return false;
+      if(minPrice!=='' && p.price<Number(minPrice)) return false;
+      if(maxPrice!=='' && p.price>Number(maxPrice)) return false;
+      if(minArea!=='' && p.area<Number(minArea)) return false;
+      if(maxArea!=='' && p.area>Number(maxArea)) return false;
+      if(p.type!=='land' && beds!=='' && p.beds<Number(beds)) return false;
+      if(p.type!=='land' && baths!=='' && p.baths<Number(baths)) return false;
+      return true;
+    });
+    if(sort==='low') filtered.sort((a,b)=>a.price-b.price);
+    if(sort==='high') filtered.sort((a,b)=>b.price-a.price);
+    if(sort==='newest') filtered.sort((a,b)=>b.id-a.id);
+    return filtered;
+  },[transaction,kind,district,minPrice,maxPrice,minArea,maxArea,beds,baths,sort]);
+
+  return <PageShell title={t.listings} subtitle={t.listingDesc} eyebrow={t.collection}>
+    <section className="container interior-catalog">
+      <div className="interior-demo-note"><ShieldCheck size={17}/>{t.demoNote}</div>
+      <div className="interior-catalog-layout">
+        <aside className="interior-filters">
+          <div className="interior-filters-heading">
+            <h2><SlidersHorizontal size={19}/>{t.filters}</h2>
+            <button onClick={reset} type="button"><RotateCcw size={15}/>{t.reset}</button>
+          </div>
+
+          <div className="interior-filter-fields">
+            <label>{t.transaction}
+              <select value={transaction} onChange={e=>setTransaction(e.target.value)}>
+                <option value="all">{t.all}</option>
+                <option value="rent">{t.rent}</option>
+                <option value="sale">{t.sale}</option>
+              </select>
+            </label>
+            <label>{t.propertyType}
+              <select value={kind} onChange={e=>setKind(e.target.value)}>
+                <option value="all">{t.all}</option>
+                {kinds.map(k=><option key={k} value={k}>{s(k)}</option>)}
+              </select>
+            </label>
+            <label>{t.district}
+              <select value={district} onChange={e=>setDistrict(e.target.value)}>
+                <option value="all">{t.all}</option>
+                {districts.map(d=><option key={d} value={d}>{s(d)}</option>)}
+              </select>
+            </label>
+            <div className="interior-filter-pair">
+              <label>{t.minPrice}
+                <input type="number" min="0" value={minPrice} onChange={e=>setMinPrice(e.target.value)} placeholder="0"/>
+              </label>
+              <label>{t.maxPrice}
+                <input type="number" min="0" value={maxPrice} onChange={e=>setMaxPrice(e.target.value)} placeholder="0"/>
+              </label>
+            </div>
+            <div className="interior-filter-pair">
+              <label>{t.minArea}
+                <input type="number" min="0" value={minArea} onChange={e=>setMinArea(e.target.value)} placeholder="m²"/>
+              </label>
+              <label>{t.maxArea}
+                <input type="number" min="0" value={maxArea} onChange={e=>setMaxArea(e.target.value)} placeholder="m²"/>
+              </label>
+            </div>
+            {kind!=='land' && <>
+              <label>{t.beds}
+                <select value={beds} onChange={e=>setBeds(e.target.value)}>
+                  <option value="">{t.all}</option>
+                  {[1,2,3,4,5,6].map(n=><option key={n} value={n}>{n}+</option>)}
+                </select>
+              </label>
+              <label>{t.baths}
+                <select value={baths} onChange={e=>setBaths(e.target.value)}>
+                  <option value="">{t.all}</option>
+                  {[1,2,3,4,5].map(n=><option key={n} value={n}>{n}+</option>)}
+                </select>
+              </label>
+            </>}
+          </div>
+        </aside>
+
+        <div className="interior-results">
+          <div className="interior-results-head">
+            <div>
+              <span className="interior-small-kicker">DURRAT / COLLECTION</span>
+              <h2>{t.results} <span>({results.length})</span></h2>
+            </div>
+            <label className="interior-sort">{t.sort}
+              <select value={sort} onChange={e=>setSort(e.target.value)}>
+                <option value="newest">{t.newest}</option>
+                <option value="low">{t.priceLow}</option>
+                <option value="high">{t.priceHigh}</option>
+              </select>
+            </label>
+          </div>
+
+          <PropertyResultsMap
+            locale={locale}
+            properties={results.map(item=>({
+              id:item.id,
+              title:item.titleKey
+                ? p(item.titleKey)
+                : `${s(item.type)} - ${s(item.district)}`,
+              price:item.price,
+              district:item.district,
+              districtLabel:s(item.district),
+              imageUrl:item.photos[0],
+              area:item.area,
+              beds:item.beds
+            }))}
+          />
+          {results.length>0
+            ? <div className="interior-results-grid">
+                {results.map(item=><ListingCard key={item.id} item={item}/>)}
+              </div>
+            : <div className="interior-empty"><Search size={34}/><h3>{t.noResults}</h3>
+                <button type="button" onClick={reset}>{t.reset}</button></div>
+          }
+        </div>
+      </div>
+    </section>
+  </PageShell>;
+}
+
+function EnquiryForm({propertyId}: {propertyId?:number}) {
+  const {t} = usePageText();
+  const [submitted,setSubmitted] = useState(false);
+
+  return <div className="interior-enquiry">
+    <h3><MessageCircle size={22}/>{t.request}</h3>
+    <p className="interior-form-notice">{t.frontendOnly}</p>
+    <form onSubmit={e=>{e.preventDefault();setSubmitted(true);}}>
+      <label>{t.name}<input name="fullName" autoComplete="name" required minLength={2}/></label>
+      <label>{t.phone}<input name="phone" type="tel" autoComplete="tel" required minLength={7}/></label>
+      <label>{t.email}<input name="email" type="email" autoComplete="email"/></label>
+      <label className="interior-consent">
+        <input type="checkbox" required/>
+        <span>{t.consent}</span>
+      </label>
+      <button className="interior-gold-button" type="submit">
+        <MessageCircle size={19}/>{t.continue}
+      </button>
+      {submitted && <p role="status" className="interior-success">
+        <CheckCircle2 size={18}/>{t.submitted}
+      </p>}
+    </form>
+  </div>;
+}
+
+export function DetailsPage({id}: {id:string}) {
+  const {locale,t} = usePageText();
+  const s = useTranslations('Search');
+  const p = useTranslations('Property');
+  const item = items.find(i=>String(i.id)===id);
+  const [activeImage,setActiveImage] = useState(0);
+
+  if(!item) return <PageShell title={t.unavailable} subtitle="" eyebrow="DURRAT">
+    <div className="container interior-missing">
+      <Link href={`/${locale}/properties`}>{t.back}</Link>
+    </div>
+  </PageShell>;
+
+  const title = item.titleKey ? p(item.titleKey) : `${s(item.type)} · ${s(item.district)}`;
+  const related = items.filter(i=>i.id!==item.id).slice(0,3);
+
+  return <PageShell title={title} subtitle={`${s(item.district)} · ${t.city}`} eyebrow="PROPERTY / DETAILS">
+    <section className="container interior-details">
+      <Link href={`/${locale}/properties`} className="interior-back">
+        <ArrowRight size={17}/>{t.back}
+      </Link>
+      <div className="interior-details-heading">
+        <div>
+          <span className="interior-small-kicker">DURRAT / {item.id}</span>
+          <h2>{title}</h2>
+          <p><MapPin size={16}/>{s(item.district)} · {t.city}</p>
+        </div>
+        <div className="interior-details-price" dir="ltr">
+          {money(item.price,locale)} <span className="dh-riyal-icon" role="img" aria-label="ريال سعودي" />
+          {item.transaction==='rent' && <span>{t.perYear}</span>}
+        </div>
+      </div>
+
+      <div className="interior-gallery">
+        <div className="interior-main-photo">
+          <img src={item.photos[activeImage]} alt={title}/>
+          <span>{activeImage+1} / {item.photos.length}</span>
+        </div>
+        <div className="interior-thumbnails">
+          {item.photos.map((photo,i)=><button type="button" key={i}
+            className={activeImage===i?'active':''}
+            onClick={()=>setActiveImage(i)}
+            aria-label={`${t.gallery} ${i+1}`}>
+            <img src={photo} alt=""/>
+          </button>)}
+        </div>
+      </div>
+
+      <div className="interior-details-layout">
+        <div className="interior-details-main">
+          <section className="interior-content-panel">
+            <h3>{t.specs}</h3>
+            <div className="interior-spec-grid">
+              <div><Building2 size={24}/><span>{t.propertyType}</span><strong>{s(item.type)}</strong></div>
+              <div><Maximize2 size={24}/><span>{t.minArea}</span><strong>{item.area} {t.area}</strong></div>
+              {item.beds>0 && <div><BedDouble size={24}/><span>{t.beds}</span><strong>{item.beds}</strong></div>}
+              {item.baths>0 && <div><Bath size={24}/><span>{t.baths}</span><strong>{item.baths}</strong></div>}
+              <div><KeyRound size={24}/><span>{t.transaction}</span><strong>{item.transaction==='rent'?t.rent:t.sale}</strong></div>
+              <div><MapPin size={24}/><span>{t.district}</span><strong>{s(item.district)}</strong></div>
+            </div>
+          </section>
+          <section className="interior-content-panel">
+            <h3>{t.description}</h3>
+            <p className="interior-description">{t.detailText}</p>
+            <div className="interior-demo-note"><ShieldCheck size={18}/>{t.demoNote}</div>
+          </section>
+          <section className="interior-content-panel">
+            <h3>{t.location}</h3>
+            <div className="interior-location-placeholder">
+              <MapPin size={32}/>
+              <strong>{s(item.district)}</strong>
+              <span>{t.city}</span>
+            </div>
+          </section>
+        </div>
+        <aside className="interior-enquiry-side">
+          <EnquiryForm propertyId={item.id}/>
+        </aside>
+      </div>
+
+      <div className="interior-related">
+        <div className="interior-section-heading">
+          <span className="interior-small-kicker">DISCOVER MORE</span>
+          <h2>{t.related}</h2>
+        </div>
+        <div className="interior-related-grid">
+          {related.map(i=><ListingCard key={i.id} item={i}/>)}
+        </div>
+      </div>
+    </section>
+  </PageShell>;
+}
+
+export function AboutPage() {
+  const {t} = usePageText();
+  return <PageShell title={t.aboutTitle} subtitle={t.aboutText} eyebrow="DURRAT / ABOUT">
+    <section className="container interior-about">
+      <div className="interior-about-top">
+        <div>
+          <span className="interior-small-kicker">DURRAT AL HIJRAH</span>
+          <h2>{t.aboutTitle}</h2>
+          <p>{t.aboutText}</p>
+        </div>
+        <div className="interior-about-mark">
+          <img src="/brand-gold.png" alt="Durrat Al Hijrah"/>
+          <strong dir="rtl">درة الهجرة للعقارات</strong>
+          <span>MADINAH · SAUDI ARABIA</span>
+        </div>
+      </div>
+      <div className="interior-values">
+        {[
+          {icon:Search,title:t.value1,text:t.value1Text},
+          {icon:Gem,title:t.value2,text:t.value2Text},
+          {icon:HeartHandshake,title:t.value3,text:t.value3Text}
+        ].map((v,i)=><div key={i} className="interior-value">
+          <span className="interior-value-number">0{i+1}</span>
+          <v.icon size={29} strokeWidth={1.4}/>
+          <h3>{v.title}</h3>
+          <p>{v.text}</p>
+        </div>)}
+      </div>
+    </section>
+  </PageShell>;
+}
+
+export function ContactPage() {
+  const {t} = usePageText();
+  return <PageShell title={t.contactTitle} subtitle={t.contactText} eyebrow="DURRAT / CONTACT">
+    <section className="container interior-contact-layout">
+      <div className="interior-contact-intro">
+        <span className="interior-small-kicker">GET IN TOUCH</span>
+        <h2>{t.contactTitle}</h2>
+        <p>{t.contactText}</p>
+        <div className="interior-contact-place">
+          <MapPin size={22}/>
+          <div><strong>{t.city}</strong><span>Saudi Arabia</span></div>
+        </div>
+        <div className="interior-contact-logo">
+          <img src="/brand-gold.png" alt=""/>
+        </div>
+      </div>
+      <EnquiryForm/>
+    </section>
+  </PageShell>;
+}

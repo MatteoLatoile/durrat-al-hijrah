@@ -1,0 +1,91 @@
+{
+    "Nav":  {
+                "properties":  "Properti",
+                "about":  "Tentang kami",
+                "services":  "Layanan",
+                "contact":  "Kontak",
+                "language":  "Bahasa",
+                "menu":  "Menu"
+            },
+    "Hero":  {
+                 "eyebrow":  "Durrat Al Hijrah • Madinah",
+                 "headlineOne":  "Setiap awal yang baru",
+                 "headlineTwo":  "layak punya tempat istimewa.",
+                 "description":  "Hunian pilihan, ruang yang berkesan, dan pencarian properti yang mudah untuk menemukan tempat berikutnya.",
+                 "explore":  "Jelajahi properti",
+                 "learn":  "Lihat layanan",
+                 "scroll":  "Gulir untuk melihat",
+                 "sceneLabel":  "Arsitektur bertemu jiwa Madinah",
+                 "sceneFoot":  "Visualisasi arsitektur 3D"
+             },
+    "Search":  {
+                   "rent":  "Sewa",
+                   "buy":  "Beli",
+                   "title":  "Temukan properti impian",
+                   "subtitle":  "Pilih kriteria Anda, kami bantu selanjutnya",
+                   "property":  "Jenis properti",
+                   "allTypes":  "Semua jenis",
+                   "apartment":  "Apartemen",
+                   "villa":  "Vila",
+                   "land":  "Tanah",
+                   "building":  "Gedung",
+                   "shop":  "Komersial",
+                   "district":  "Kawasan",
+                   "allDistricts":  "Semua kawasan",
+                   "arid":  "Al-Aridh",
+                   "qurban":  "Qurban",
+                   "awali":  "Al-Awali",
+                   "minPrice":  "Harga minimum",
+                   "maxPrice":  "Harga maksimum",
+                   "anyPrice":  "Bebas",
+                   "bedrooms":  "Kamar tidur",
+                   "anyBeds":  "Semua",
+                   "search":  "Lihat hasil",
+                   "advanced":  "Filter lanjutan",
+                   "hideAdvanced":  "Sembunyikan filter",
+                   "clear":  "Hapus filter",
+                   "areaFrom":  "Luas minimum (m²)",
+                   "results":  "Hasil pencarian",
+                   "all":  "Semua"
+               },
+    "Featured":  {
+                     "eyebrow":  "Pilihan kami",
+                     "title":  "Properti yang layak dijelajahi",
+                     "description":  "Jelajahi properti yang tersedia melalui Durrat Al Hijrah.",
+                     "view":  "Lihat properti",
+                     "perYear":  "/ tahun",
+                     "area":  "m²",
+                     "rooms":  "kamar",
+                     "baths":  "mandi",
+                     "empty":  "Tidak ada properti yang cocok. Coba ubah filter.",
+                     "demo":  "",
+                     "close":  "Tutup",
+                     "details":  "Pratinjau properti",
+                     "contact":  "Minta dihubungi",
+                     "mockNotice":  ""
+                 },
+    "Property":  {
+                     "a":  "Apartemen modern yang terang",
+                     "b":  "Vila luas dengan sentuhan elegan",
+                     "c":  "Apartemen dengan pemandangan terbuka"
+                 },
+    "Value":  {
+                  "eyebrow":  "Perhatian pada detail",
+                  "title":  "Keputusan besar dimulai dari rasa percaya.",
+                  "oneTitle":  "Pencarian lebih cerdas",
+                  "oneText":  "Filter tepat berdasarkan lokasi, anggaran, luas dan kebutuhan Anda.",
+                  "twoTitle":  "Detail yang jelas",
+                  "twoText":  "Foto dan informasi terstruktur untuk membandingkan properti.",
+                  "threeTitle":  "Mudah terhubung",
+                  "threeText":  "Cara langsung dan rapi untuk bertanya tentang properti."
+              },
+    "Footer":  {
+                   "tagline":  "Cara nyaman menemukan properti di Madinah.",
+                   "links":  "Tautan cepat",
+                   "prototype":  "",
+                   "copyright":  "Hak cipta dilindungi",
+                   "ctaTitle":  "Tempat berikutnya menanti Anda.",
+                   "ctaText":  "Mulai mencari dan temukan berbagai pilihan.",
+                   "ctaButton":  "Cari properti"
+               }
+}
