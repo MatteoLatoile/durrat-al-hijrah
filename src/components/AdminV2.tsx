@@ -494,7 +494,7 @@ function DistrictManager({
         onPick={setPosition}
         onEdit={district=>{
           setEditing(district.id);
-          setNames({...district.names});
+          setNames({...emptyMulti(), ...district.names});
           setPosition({
             latitude:district.latitude??null,
             longitude:district.longitude??null
